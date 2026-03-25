@@ -60,7 +60,6 @@ export default function HeroStarter() {
         <p
           className="text-2xl sm:text-3xl md:text-4xl font-medium text-white leading-snug max-w-lg"
           style={{
-            animation: 'fadeInUp 0.8s ease 0.6s both',
             background: 'linear-gradient(90deg, #b45309, #fcd34d, #fef3c7, #fbbf24, #fcd34d, #b45309)',
             backgroundSize: '200% auto',
             WebkitBackgroundClip: 'text',
@@ -71,6 +70,25 @@ export default function HeroStarter() {
         >
           Cafeaua care te seduce din prima înghițitură
         </p>
+
+        {/* BUTOANE CTA */}
+        <div
+          className="flex flex-row gap-5 mt-8"
+          style={{ animation: 'fadeInUp 0.8s ease 0.8s both' }}
+        >
+          <a
+            href="#menu"
+            className="px-8 py-3 bg-amber-600 text-white font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_30px_rgba(180,83,9,0.6)]"
+          >
+            Vezi Meniul
+          </a>
+          <a
+            href="#contact"
+            className="px-8 py-3 border-2 border-white text-white font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_30px_rgba(255,255,255,0.3)]"
+          >
+            Vizitează-ne
+          </a>
+        </div>
 
       </div>
 
