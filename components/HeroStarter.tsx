@@ -103,9 +103,12 @@ export default function HeroStarter() {
 
       </div>
 
+      {/* Tranziție spre secțiunea următoare */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent, #2c1810)' }} />
+
       {/* SCROLL INDICATOR */}
       <div className="absolute bottom-8 left-0 right-0 flex justify-center z-10">
-        <a href="#footer" className="scroll-arrow group relative flex flex-col items-center gap-1">
+        <a href="#features" className="scroll-arrow group relative flex flex-col items-center gap-1">
           {/* pată de ceață */}
           <div className="absolute w-48 h-24 rounded-full bg-white/30 group-hover:bg-amber-400/30 blur-3xl transition-colors duration-300" />
           <span className="relative text-white group-hover:text-amber-400 transition-colors duration-300 text-[11px] tracking-widest uppercase font-semibold">scroll</span>

@@ -29,7 +29,7 @@ export default function FeaturesStarter() {
   const title = useScrollFade();
 
   return (
-    <section id="features" className="py-28 px-6" style={{ background: 'linear-gradient(180deg, #0e0e0e 0%, #2a1f15 20%, #e8d9c0 55%, #f0ebe0 100%)' }}>
+    <section id="features" className="py-28 px-6" style={{ background: 'linear-gradient(180deg, #2c1810 0%, #5c3520 20%, #8b5e3c 45%, #c9a07a 70%, #e8d5b0 100%)' }}>
       <div className="max-w-6xl mx-auto">
 
         {/* TITLU */}
@@ -37,90 +37,104 @@ export default function FeaturesStarter() {
           ref={title.ref}
           className={`mb-20 transition-all duration-1000 ${title.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
         >
-          <p className="text-amber-400 text-xs tracking-[0.3em] uppercase font-semibold mb-4">
-            De ce Vibe Coffee
-          </p>
-          <h2 className="text-5xl md:text-7xl font-bold text-white leading-tight max-w-2xl">
-            Experiența <br />
-            <span className="italic font-light text-white/50">care rămâne</span>
+          <h2 className="text-5xl md:text-7xl font-bold text-white leading-tight max-w-3xl"
+            style={{ textShadow: '0 4px 30px rgba(0,0,0,0.5)' }}
+          >
+            De ce <span style={{
+              background: 'linear-gradient(90deg, #fcd34d, #f59e0b, #fcd34d)',
+              backgroundSize: '200% auto',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              animation: 'shimmer 3s linear infinite',
+            }}>Vibe Coffee?</span>
           </h2>
+          <p className="text-white/70 text-xl md:text-2xl mt-6 max-w-xl leading-relaxed">
+            Experiență unică, ingrediente premium, atmosferă perfectă.
+          </p>
         </div>
 
-        {/* BENTO GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:h-[580px]">
+        {/* CARDS ORIZONTALE */}
+        <div className="flex flex-col gap-6">
 
-          {/* CARD MARE — stânga, 3 coloane, full height */}
+          {/* ROW 1 */}
           <div
             ref={card1.ref}
-            className={`md:col-span-3 md:row-span-2 relative rounded-3xl overflow-hidden group cursor-pointer
-              transition-all duration-700 delay-100
-              hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)] hover:-translate-y-1
-              ${card1.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+            className={`group grid grid-cols-1 md:grid-cols-2 rounded-3xl overflow-hidden transition-all duration-700 delay-100 hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)] ${card1.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
           >
-            <img
-              src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&auto=format&fit=crop"
-              alt="Cafea de specialitate"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-            <div className="absolute bottom-0 left-0 p-8 md:p-10">
-              <div className="w-8 h-px bg-amber-400 mb-6" />
-              <h3 className="text-3xl md:text-4xl font-bold text-white mb-3 leading-tight">
-                Calitate din<br />prima înghițitură
+            {/* Poza */}
+            <div className="min-h-72 md:min-h-0 overflow-hidden self-stretch">
+              <img
+                src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&auto=format&fit=crop"
+                alt="Cafea de specialitate"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+            </div>
+            {/* Text */}
+            <div className="flex flex-col justify-center px-10 py-10" style={{ background: '#1c1008' }}>
+              <p className="text-amber-400 text-[10px] tracking-[0.3em] uppercase font-semibold mb-4">Specialty Coffee</p>
+              <div className="w-8 h-px bg-amber-400 mb-5" />
+              <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight mb-4">
+                Calitate din prima înghițitură
               </h3>
-              <p className="text-white/70 text-base leading-relaxed max-w-sm">
+              <p className="text-white/60 text-sm leading-relaxed">
                 Boabe selectate din cele mai bune origini, prăjite artizanal și preparate cu precizie.
               </p>
-              <a
-                href="#menu"
-                className="inline-block mt-6 px-6 py-2.5 border border-white/30 text-white text-sm font-semibold rounded-full hover:border-amber-400 hover:text-amber-400 transition-all duration-300"
-              >
+              <a href="#menu" className="inline-flex items-center gap-2 mt-6 px-6 py-2.5 border border-amber-400 text-amber-400 text-sm font-semibold rounded-full hover:bg-amber-400 hover:text-black transition-all duration-300 w-fit">
                 Vezi Meniul →
               </a>
             </div>
           </div>
 
-          {/* CARD MIC 1 — dreapta sus */}
+          {/* ROW 2 — poză dreapta */}
           <div
             ref={card2.ref}
-            className={`md:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer
-              transition-all duration-700 delay-200
-              hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)] hover:-translate-y-1
-              ${card2.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+            className={`group grid grid-cols-1 md:grid-cols-2 rounded-3xl overflow-hidden transition-all duration-700 delay-200 hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)] ${card2.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
           >
-            <img
-              src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&auto=format&fit=crop"
-              alt="Locație premium"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 p-6 md:p-8">
-              <p className="text-amber-400 text-[10px] tracking-widest uppercase font-semibold mb-2">Locație</p>
-              <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">
+            {/* Text */}
+            <div className="flex flex-col justify-center px-10 py-10 order-2 md:order-1" style={{ background: '#0e1a0a' }}>
+              <p className="text-amber-400 text-[10px] tracking-[0.3em] uppercase font-semibold mb-4">Locație</p>
+              <div className="w-8 h-px bg-amber-400 mb-5" />
+              <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight mb-4">
                 În inima orașului
               </h3>
+              <p className="text-white/60 text-sm leading-relaxed">
+                Ușor de găsit, greu de uitat. Te așteptăm cu un loc special pentru tine.
+              </p>
+            </div>
+            {/* Poza */}
+            <div className="h-64 md:h-72 overflow-hidden order-1 md:order-2">
+              <img
+                src="/cafenea-afara.jpg"
+                alt="Locație premium"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
             </div>
           </div>
 
-          {/* CARD MIC 2 — dreapta jos */}
+          {/* ROW 3 */}
           <div
             ref={card3.ref}
-            className={`md:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer
-              transition-all duration-700 delay-300
-              hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)] hover:-translate-y-1
-              ${card3.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+            className={`group grid grid-cols-1 md:grid-cols-2 rounded-3xl overflow-hidden transition-all duration-700 delay-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)] ${card3.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
           >
-            <img
-              src="https://images.pexels.com/photos/1638280/pexels-photo-1638280.jpeg?w=600&auto=compress&cs=tinysrgb"
-              alt="Opțiuni vegane"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 p-6 md:p-8">
-              <p className="text-amber-400 text-[10px] tracking-widest uppercase font-semibold mb-2">Plant-based</p>
-              <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">
+            {/* Poza */}
+            <div className="h-64 md:h-72 overflow-hidden">
+              <img
+                src="https://images.pexels.com/photos/1638280/pexels-photo-1638280.jpeg?w=600&auto=compress&cs=tinysrgb"
+                alt="Opțiuni vegane"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+            </div>
+            {/* Text */}
+            <div className="flex flex-col justify-center px-10 py-10" style={{ background: '#1a0e00' }}>
+              <p className="text-amber-400 text-[10px] tracking-[0.3em] uppercase font-semibold mb-4">Plant-based</p>
+              <div className="w-8 h-px bg-amber-400 mb-5" />
+              <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight mb-4">
                 Opțiuni vegane
               </h3>
+              <p className="text-white/60 text-sm leading-relaxed">
+                Lapte de ovăz, migdale sau cocos — fiecare cafea adaptată stilului tău de viață.
+              </p>
             </div>
           </div>
 

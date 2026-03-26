@@ -11,33 +11,33 @@ const menuData = {
     { name: 'Espresso', price: 2.5, image: 'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?w=400&auto=compress&cs=tinysrgb' },
     { name: 'Doppio', price: 3, image: 'https://images.pexels.com/photos/1233528/pexels-photo-1233528.jpeg?w=400&auto=compress&cs=tinysrgb' },
     { name: 'Ristretto', price: 2.5, image: 'https://images.pexels.com/photos/350478/pexels-photo-350478.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Lungo', price: 2.8, image: 'https://images.pexels.com/photos/374885/pexels-photo-374885.jpeg?w=400&auto=compress&cs=tinysrgb' },
+    { name: 'Lungo', price: 2.8, image: '/lungo.jpeg' },
     { name: 'Macchiato', price: 3, image: 'https://images.pexels.com/photos/1193335/pexels-photo-1193335.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Cortado', price: 3.2, image: 'https://images.pexels.com/photos/5946641/pexels-photo-5946641.jpeg?w=400&auto=compress&cs=tinysrgb' },
+    { name: 'Cortado', price: 3.2, image: '/cortado.jpeg' },
   ],
   Specialty: [
-    { name: 'Flat White', price: 4, image: 'https://images.pexels.com/photos/3541383/pexels-photo-3541383.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Cappuccino', price: 3.5, image: 'https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Latte', price: 3.8, image: 'https://images.pexels.com/photos/1251175/pexels-photo-1251175.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Oat Latte', price: 4.5, image: 'https://images.pexels.com/photos/6802983/pexels-photo-6802983.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Matcha Latte', price: 5, image: 'https://images.pexels.com/photos/5946634/pexels-photo-5946634.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Turmeric Latte', price: 5, image: 'https://images.pexels.com/photos/6802982/pexels-photo-6802982.jpeg?w=400&auto=compress&cs=tinysrgb' },
+    { name: 'Flat White', price: 4, image: '/flat-white.webp' },
+    { name: 'Cappuccino', price: 3.5, image: '/cappuccino.jpeg' },
+    { name: 'Latte', price: 3.8, image: '/latte.jpeg' },
+    { name: 'Oat Latte', price: 4.5, image: '/oat-latte.jpeg' },
+    { name: 'Matcha Latte', price: 5, image: '/matcha-latte.jpeg' },
+    { name: 'Turmeric Latte', price: 5, image: '/turmeric-latte.jpeg' },
   ],
   'Cold Brew': [
-    { name: 'Cold Brew Classic', price: 4.5, image: 'https://images.pexels.com/photos/1544947/pexels-photo-1544947.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Cold Brew cu Lapte', price: 5, image: 'https://images.pexels.com/photos/4264098/pexels-photo-4264098.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Nitro Cold Brew', price: 5.5, image: 'https://images.pexels.com/photos/7362089/pexels-photo-7362089.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Cold Brew Tonic', price: 5.2, image: 'https://images.pexels.com/photos/3407777/pexels-photo-3407777.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Iced Latte', price: 4.8, image: 'https://images.pexels.com/photos/2638026/pexels-photo-2638026.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Iced Matcha', price: 5.2, image: 'https://images.pexels.com/photos/8330546/pexels-photo-8330546.jpeg?w=400&auto=compress&cs=tinysrgb' },
+    { name: 'Cold Brew Classic', price: 4.5, image: '/cold-brew-classic2.jpeg' },
+    { name: 'Cold Brew cu Lapte', price: 5, image: '/cold-brew-lapte.jpeg' },
+    { name: 'Nitro Cold Brew', price: 5.5, image: '/nitro-cold-brew.jpeg' },
+    { name: 'Cold Brew Tonic', price: 5.2, image: '/tonic.jpeg' },
+    { name: 'Iced Latte', price: 4.8, image: '/iced-latte.jpeg' },
+    { name: 'Iced Matcha', price: 5.2, image: '/iced-matcha.jpeg' },
   ],
   Patiserie: [
-    { name: 'Croissant cu Unt', price: 3.5, image: 'https://images.pexels.com/photos/1510682/pexels-photo-1510682.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Pain au Chocolat', price: 4, image: 'https://images.pexels.com/photos/3892469/pexels-photo-3892469.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Brioche', price: 3.8, image: 'https://images.pexels.com/photos/2135/food-france-morning-breakfast.jpg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Ecler cu Vanilie', price: 4.5, image: 'https://images.pexels.com/photos/2373520/pexels-photo-2373520.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Tartă cu Fructe', price: 5, image: 'https://images.pexels.com/photos/1126359/pexels-photo-1126359.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Cheesecake', price: 5.5, image: 'https://images.pexels.com/photos/1126728/pexels-photo-1126728.jpeg?w=400&auto=compress&cs=tinysrgb' },
+    { name: 'Croissant cu Unt', price: 3.5, image: '/croissant.jpeg' },
+    { name: 'Pain au Chocolat', price: 4, image: '/pain-au-chocolat.jpeg' },
+    { name: 'Brioche', price: 3.8, image: '/brioche.jpeg' },
+    { name: 'Ecler cu Vanilie', price: 4.5, image: '/ecler.jpeg' },
+    { name: 'Tartă cu Fructe', price: 5, image: '/tarta-fructe.jpeg' },
+    { name: 'Cheesecake', price: 5.5, image: '/cheesecake.webp' },
   ],
 };
 
@@ -48,7 +48,7 @@ export default function MenuStarter() {
   const [activeTab, setActiveTab] = useState<Category>('Espresso');
 
   return (
-    <section id="menu" className="py-24 px-6" style={{ background: 'linear-gradient(180deg, #f0ebe0 0%, #e8d9c0 40%, #faf8f4 100%)' }}>
+    <section id="menu" className="py-24 px-6" style={{ background: 'linear-gradient(180deg, #faf5ec 0%, #f5efe0 50%, #faf8f4 100%)' }}>
       <div className="max-w-5xl mx-auto">
 
         {/* TITLU */}
@@ -125,7 +125,17 @@ export default function MenuStarter() {
 
               {/* Info */}
               <div className="px-4 py-3 flex justify-between items-center border-t border-gray-50">
-                <span className="font-semibold text-gray-900 text-sm">{item.name}</span>
+                <span
+                  className="font-bold text-base tracking-wide"
+                  style={{
+                    background: 'linear-gradient(90deg, #1c1c1c 0%, #b45309 50%, #1c1c1c 100%)',
+                    backgroundSize: '200% auto',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    animation: 'shimmer 3s linear infinite',
+                  }}
+                >{item.name}</span>
                 <span className="text-amber-600 font-bold text-sm">{item.price.toFixed(2)} €</span>
               </div>
             </div>
