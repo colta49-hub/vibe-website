@@ -65,14 +65,14 @@ export default function NotiteStarter() {
         {/* Header */}
         <div className="text-center mb-16">
           <p className="text-amber-700 text-xs tracking-[0.3em] uppercase font-semibold mb-4">
-            Peretele notițelor
+            Recenzii clienți
           </p>
           <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
-            Ce-ai simțit azi?
+            Vocea ta contează
           </h2>
           <div className="w-12 h-px bg-amber-400 mx-auto mt-4 mb-6" />
           <p className="text-gray-600 text-lg max-w-lg mx-auto">
-            Lasă un gând anonim. Rămâne pe perete pentru cei care vin după tine.
+            Ai vizitat Vibe Caffè? Lasă o recenzie și ajută-i pe alții să descopere experiența noastră.
           </p>
         </div>
 
@@ -80,13 +80,13 @@ export default function NotiteStarter() {
 
           {/* Formular */}
           <div className="rounded-3xl p-8 bg-white border border-amber-100" style={{ boxShadow: '0 20px 60px rgba(44,24,16,0.12)' }}>
-            <h3 className="text-xl font-bold text-gray-900 mb-1">Scrie o notiță</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-1">Scrie o recenzie</h3>
             <p className="text-sm text-amber-600/70 mb-6 tracking-wide">Anonim · Vizibil tuturor · Max 160 caractere</p>
 
             <textarea
               value={mesaj}
               onChange={(e) => setMesaj(e.target.value.slice(0, 160))}
-              placeholder="O cafea bună, o dimineață câștigată..."
+              placeholder="Spune-ne cum a fost experiența ta la Vibe Caffè..."
               rows={4}
               className="w-full rounded-2xl border-2 border-amber-100 px-5 py-4 text-gray-800 text-base resize-none focus:outline-none focus:border-amber-300 transition-all bg-amber-50/30"
             />
@@ -95,7 +95,7 @@ export default function NotiteStarter() {
               <span className="text-xs text-gray-300">{mesaj.length}/160</span>
               {trimis && (
                 <span className="text-sm font-semibold text-amber-600">
-                  ✓ Notița ta e pe perete!
+                  ✓ Recenzia ta a fost trimisă!
                 </span>
               )}
             </div>
@@ -103,10 +103,10 @@ export default function NotiteStarter() {
             <button
               onClick={trimiteNotita}
               disabled={loading || mesaj.trim().length < 3}
-              className="w-full py-4 rounded-2xl text-white font-bold text-sm tracking-widest uppercase transition-all hover:scale-[1.02] hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
-              style={{ background: 'linear-gradient(135deg, #f59e0b, #b45309)', boxShadow: '0 6px 0 #92400e' }}
+              className="block mx-auto px-8 py-3 rounded-2xl font-bold text-sm tracking-wide uppercase transition-all hover:scale-[1.02] hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+              style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)', boxShadow: '0 4px 0 #92400e', color: '#1c1008' }}
             >
-              {loading ? 'Se trimite...' : '📌 Lipește pe perete'}
+              {loading ? 'Se trimite...' : '⭐ Trimite recenzia'}
             </button>
           </div>
 
@@ -114,8 +114,10 @@ export default function NotiteStarter() {
           <div>
             <div className="grid grid-cols-2 gap-4">
               {notite.length === 0 && (
-                <div className="col-span-2 text-center text-amber-300 py-12 text-sm italic">
-                  Fii primul care lasă o notiță...
+                <div className="col-span-2 text-center py-12">
+                  <p className="text-3xl mb-3">☕</p>
+                  <p className="text-amber-700 font-semibold text-base">Nicio recenzie încă</p>
+                  <p className="text-amber-600/60 text-sm mt-1">Fii primul care împărtășește experiența!</p>
                 </div>
               )}
               {notite.map((n, i) => {
@@ -144,8 +146,8 @@ export default function NotiteStarter() {
             </div>
 
             {notite.length > 0 && (
-              <p className="text-center text-xs text-amber-400/60 mt-6 tracking-widest uppercase">
-                Ultimele {notite.length} notițe
+              <p className="text-center text-sm text-amber-600 font-bold mt-6 tracking-widest uppercase">
+                ✦ Ultimele {notite.length} recenzii ✦
               </p>
             )}
           </div>

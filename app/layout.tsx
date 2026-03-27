@@ -25,13 +25,13 @@ const inter = Inter({
  * Pentru cursanți: Metadata = informații pentru Google și social media
  */
 export const metadata: Metadata = {
-  title: "Vibe Coffee - Cafea de Specialitate în București",
-  description: "Descoperă aromele autentice ale cafelei de specialitate într-un ambient modern și prietenos. Boabe proaspăt prăjite, bariști experimentați, WiFi gratuit.",
-  keywords: ["cafenea bucuresti", "cafea specialitate", "coffee shop", "vibe coffee"],
-  authors: [{ name: "Vibe Coffee Team" }],
+  title: "Vibe Caffè - Specialty Coffee în Crawley, UK",
+  description: "Descoperă aromele autentice ale cafelei de specialitate în Crawley. Boabe proaspăt prăjite, bariști experimentați, ambient modern. 2 Pound Hill Parade, Crawley RH10 7EA.",
+  keywords: ["cafenea crawley", "coffee shop crawley", "specialty coffee crawley", "vibe caffe", "crawley uk coffee"],
+  authors: [{ name: "Vibe Caffè Team" }],
   openGraph: {
-    title: "Vibe Coffee - Cafea de Specialitate",
-    description: "Locul perfect pentru cafeaua ta zilnică",
+    title: "Vibe Caffè - Specialty Coffee în Crawley",
+    description: "Cafeaua care te seduce din prima înghițitură. 2 Pound Hill Parade, Crawley RH10 7EA.",
     type: "website",
     locale: "ro_RO",
   },

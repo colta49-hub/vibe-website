@@ -7,7 +7,7 @@ const LINKS = [
   { label: 'De ce noi', href: '#features' },
   { label: 'Despre', href: '#despre' },
   { label: 'Meniu', href: '#menu' },
-  { label: 'Locație', href: '#locatie' },
+  { label: 'Locație', href: '#footer' },
 ]
 
 export default function NavbarStarter() {

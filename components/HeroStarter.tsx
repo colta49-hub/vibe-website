@@ -42,6 +42,14 @@ export default function HeroStarter() {
       {/* CONȚINUT PRINCIPAL — centrat */}
       <div className="relative z-10 w-full max-w-5xl mx-auto px-6 sm:px-16 flex flex-col items-center justify-start min-h-screen text-center pt-36 sm:pt-44">
 
+        {/* LOGO */}
+        <div
+          className="mb-8"
+          style={{ animation: 'fadeInUp 0.8s ease 0.1s both' }}
+        >
+          <img src="/logo-vibe-v1.svg" alt="Vibe Caffè" className="h-16 mx-auto" />
+        </div>
+
         {/* TITLU */}
         <h1
           className="text-5xl sm:text-9xl md:text-[11rem] font-bold leading-none mb-4 sm:mb-6 text-white"
@@ -88,7 +96,7 @@ export default function HeroStarter() {
             Vezi Meniul
           </a>
           <a
-            href="#locatie"
+            href="#footer"
             className="px-6 py-2.5 text-sm border-2 border-white text-white font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_30px_rgba(255,255,255,0.3)]"
           >
             Vizitează-ne
