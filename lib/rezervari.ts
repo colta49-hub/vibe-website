@@ -28,3 +28,23 @@ export async function citesteRezervari() {
   if (error) throw error
   return data
 }
+
+export async function schimbaStatus(id: number, status: string) {
+  const { data, error } = await supabase
+    .from('rezervari')
+    .update({ status })
+    .eq('id', id)
+    .select()
+
+  if (error) throw error
+  return data
+}
+
+export async function stergeRezervare(id: number) {
+  const { error } = await supabase
+    .from('rezervari')
+    .delete()
+    .eq('id', id)
+
+  if (error) throw error
+}
