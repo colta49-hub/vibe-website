@@ -88,7 +88,7 @@ export default function HeroStarter() {
             Vezi Meniul
           </a>
           <a
-            href="/locatie"
+            href="#locatie"
             className="px-6 py-2.5 text-sm border-2 border-white text-white font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_30px_rgba(255,255,255,0.3)]"
           >
             Vizitează-ne
