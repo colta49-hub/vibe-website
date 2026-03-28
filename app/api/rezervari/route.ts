@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { salveazaRezervare, schimbaStatus, stergeRezervare, citesteRezervari } from '@/lib/rezervari'
+import { Resend } from 'resend'
 
 // GET /api/rezervari — returnează toate rezervările
 export async function GET() {
@@ -11,16 +12,93 @@ export async function GET() {
   }
 }
 
+function formatDataRo(dateStr: string) {
+  const [y, m, d] = dateStr.split('-')
+  const luni = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie']
+  return `${d} ${luni[parseInt(m) - 1]} ${y}`
+}
+
+async function trimiteConfirmareEmail(email: string, nume: string, data: string, ora: string, persoane: number) {
+  const RESEND_API_KEY = process.env.RESEND_API_KEY
+  if (!RESEND_API_KEY) return
+
+  const resend = new Resend(RESEND_API_KEY)
+
+  await resend.emails.send({
+      from: 'Vibe Caffè <onboarding@resend.dev>',
+      to: [email],
+      subject: `✅ Rezervare confirmată — ${formatDataRo(data)} la ${ora}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; background: #1c1008; color: #fff; border-radius: 16px; overflow: hidden;">
+          <div style="background: linear-gradient(135deg, #fcd34d, #f59e0b); padding: 32px; text-align: center;">
+            <div style="font-size: 40px;">☕</div>
+            <h1 style="color: #1c1008; margin: 8px 0 4px; font-size: 24px;">Rezervare confirmată!</h1>
+            <p style="color: #3d1f08; margin: 0; font-size: 14px;">Vibe Caffè · Crawley, UK</p>
+          </div>
+          <div style="padding: 32px;">
+            <p style="color: rgba(255,255,255,0.7); margin: 0 0 24px;">Bună, <strong style="color: #fcd34d;">${nume}</strong>!</p>
+            <p style="color: rgba(255,255,255,0.7); margin: 0 0 24px;">Rezervarea ta a fost înregistrată cu succes. Te așteptăm!</p>
+            <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr><td style="color: rgba(255,255,255,0.4); font-size: 12px; padding: 6px 0;">📅 Data</td><td style="color: #fcd34d; font-weight: bold; font-size: 14px; text-align: right;">${formatDataRo(data)}</td></tr>
+                <tr><td style="color: rgba(255,255,255,0.4); font-size: 12px; padding: 6px 0;">🕐 Ora</td><td style="color: #fcd34d; font-weight: bold; font-size: 14px; text-align: right;">${ora}</td></tr>
+                <tr><td style="color: rgba(255,255,255,0.4); font-size: 12px; padding: 6px 0;">👥 Persoane</td><td style="color: #fcd34d; font-weight: bold; font-size: 14px; text-align: right;">${persoane}</td></tr>
+              </table>
+            </div>
+            <div style="background: rgba(245,158,11,0.08); border-radius: 12px; padding: 16px; text-align: center;">
+              <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin: 0 0 4px;">📍 Locație</p>
+              <p style="color: #fff; font-weight: bold; margin: 0; font-size: 14px;">2 Pound Hill Parade, Crawley RH10 7EA</p>
+            </div>
+          </div>
+          <div style="padding: 16px 32px; border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
+            <p style="color: rgba(255,255,255,0.2); font-size: 11px; margin: 0;">© 2026 Vibe Caffè · +44 7706 644 224</p>
+          </div>
+        </div>
+      `,
+  })
+}
+
+async function trimiteConfirmareSMS(telefon: string, nume: string, data: string, ora: string) {
+  // Twilio SMS
+  const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID
+  const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN
+  const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER
+  if (!TWILIO_SID || !TWILIO_TOKEN || !TWILIO_FROM) return
+
+  const mesaj = `Vibe Caffè ✅ Rezervare confirmată, ${nume}! Data: ${formatDataRo(data)} la ${ora}. Adresă: 2 Pound Hill Parade, Crawley. Tel: +44 7706 644 224`
+
+  await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Basic ' + Buffer.from(`${TWILIO_SID}:${TWILIO_TOKEN}`).toString('base64'),
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({ From: TWILIO_FROM, To: telefon, Body: mesaj }),
+  })
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { nume, email, telefon, numar_persoane, data, ora } = body
+    const { nume, email, telefon, numar_persoane, data, ora, metoda_confirmare } = body
 
     if (!nume || !email || !telefon || !data || !ora) {
       return NextResponse.json({ eroare: 'Toate câmpurile sunt obligatorii.' }, { status: 400 })
     }
 
     const rezultat = await salveazaRezervare({ nume, email, telefon, numar_persoane, data, ora })
+
+    // Trimite confirmare în funcție de preferința clientului
+    try {
+      if (metoda_confirmare === 'sms') {
+        await trimiteConfirmareSMS(telefon, nume, data, ora)
+      } else {
+        await trimiteConfirmareEmail(email, nume, data, ora, numar_persoane ?? 2)
+      }
+    } catch {
+      // Confirmare eșuată nu blochează rezervarea
+    }
+
     return NextResponse.json({ succes: true, data: rezultat })
   } catch {
     return NextResponse.json({ eroare: 'Eroare la salvare. Încearcă din nou.' }, { status: 500 })

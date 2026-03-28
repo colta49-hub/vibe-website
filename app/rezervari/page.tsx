@@ -1,27 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const ORE_DISPONIBILE: string[] = []
-for (let h = 10; h <= 22; h++) {
+for (let h = 7; h <= 20; h++) {
   ORE_DISPONIBILE.push(`${String(h).padStart(2, '0')}:00`)
-  if (h < 22) ORE_DISPONIBILE.push(`${String(h).padStart(2, '0')}:30`)
+  if (h < 20) ORE_DISPONIBILE.push(`${String(h).padStart(2, '0')}:30`)
 }
 
 function getAzi() { return new Date() }
 function formatData(date: Date) { return date.toISOString().split('T')[0] }
 function addLuni(date: Date, n: number) { const d = new Date(date); d.setMonth(d.getMonth() + n); return d }
 function getDaysInMonth(y: number, m: number) { return new Date(y, m + 1, 0).getDate() }
-function getFirstDayOfMonth(y: number, m: number) { return new Date(y, m, 1).getDay() }
+function getFirstDayOfMonth(y: number, m: number) {
+  const day = new Date(y, m, 1).getDay()
+  return day === 0 ? 6 : day - 1 // Luni = 0
+}
 
 function formatDataRo(dateStr: string) {
   const [y, m, d] = dateStr.split('-')
-  const luni = ['Ian','Feb','Mar','Apr','Mai','Iun','Iul','Aug','Sep','Oct','Nov','Dec']
+  const luni = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie']
   return `${d} ${luni[parseInt(m) - 1]} ${y}`
 }
 
-function getDenumireZi(dateStr: string) {
-  return ['Du','Lu','Ma','Mi','Jo','Vi','Sâ'][new Date(dateStr).getDay()]
+function esteWeekend(year: number, month: number, zi: number) {
+  const day = new Date(year, month, zi).getDay()
+  return day === 0 || day === 6
 }
 
 export default function PaginaRezervari() {
@@ -30,12 +34,17 @@ export default function PaginaRezervari() {
 
   const [pas, setPas] = useState(1)
   const [lunaCalendar, setLunaCalendar] = useState(new Date(azi.getFullYear(), azi.getMonth(), 1))
+  const [directie, setDirectie] = useState<'left' | 'right'>('right')
+  const [animating, setAnimating] = useState(false)
+  const [lunaSelectata, setLunaSelectata] = useState(azi.getMonth())
+  const [anSelectat, setAnSelectat] = useState(azi.getFullYear())
   const [dataSelectata, setDataSelectata] = useState('')
   const [oraSelectata, setOraSelectata] = useState('')
   const [form, setForm] = useState({ nume: '', email: '', telefon: '', numar_persoane: 2 })
   const [loading, setLoading] = useState(false)
   const [succes, setSucces] = useState(false)
   const [eroare, setEroare] = useState('')
+  const [hoveredDay, setHoveredDay] = useState<number | null>(null)
 
   const year = lunaCalendar.getFullYear()
   const month = lunaCalendar.getMonth()
@@ -51,9 +60,19 @@ export default function PaginaRezervari() {
     return d >= new Date(formatData(azi)) && d <= maxData
   }
 
-  const urmatoare14 = Array.from({ length: 14 }, (_, i) => {
-    const d = new Date(azi); d.setDate(azi.getDate() + i); return formatData(d)
-  })
+  function esteAzi(zi: number) {
+    return year === azi.getFullYear() && month === azi.getMonth() && zi === azi.getDate()
+  }
+
+  function schimbaLuna(directieNoua: 'left' | 'right', novaLuna: Date) {
+    if (animating) return
+    setDirectie(directieNoua)
+    setAnimating(true)
+    setTimeout(() => {
+      setLunaCalendar(novaLuna)
+      setAnimating(false)
+    }, 280)
+  }
 
   async function trimite() {
     setLoading(true); setEroare('')
@@ -82,13 +101,13 @@ export default function PaginaRezervari() {
   // Ecran succes
   if (succes) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #0f172a 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(160deg, #2c1a0e 0%, #3d2410 50%, #1c1008 100%)' }}>
         <div className="w-full max-w-md text-center">
-          <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center text-3xl" style={{ background: 'linear-gradient(135deg, #14B8A6, #0D9488)' }}>✓</div>
+          <div className="w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl" style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)', boxShadow: '0 0 60px rgba(245,158,11,0.5)' }}>✓</div>
           <h2 className="text-3xl font-bold text-white mb-3">Rezervare confirmată!</h2>
-          <p className="text-teal-300 mb-1"><strong>{formatDataRo(dataSelectata)}</strong> la <strong>{oraSelectata}</strong></p>
+          <p className="text-amber-400 mb-1 text-lg"><strong>{formatDataRo(dataSelectata)}</strong> la <strong>{oraSelectata}</strong></p>
           <p className="text-white/40 text-sm mb-8">Confirmare la {form.email}</p>
-          <button onClick={rezervareNoua} className="w-full py-4 font-bold rounded-2xl text-white transition-all duration-300 hover:opacity-90" style={{ background: 'linear-gradient(135deg, #14B8A6, #F97316)' }}>
+          <button onClick={rezervareNoua} className="w-full py-4 font-bold rounded-2xl text-black transition-all duration-300 hover:opacity-90 hover:scale-[1.02]" style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)' }}>
             Fă o rezervare nouă
           </button>
         </div>
@@ -97,203 +116,324 @@ export default function PaginaRezervari() {
   }
 
   return (
-    <div className="min-h-screen relative" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #0f172a 100%)' }}>
+    <>
+      <style>{`
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(40px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInLeft {
+          from { opacity: 0; transform: translateX(-40px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes dayPop {
+          0%   { transform: scale(1); }
+          50%  { transform: scale(1.25); }
+          100% { transform: scale(1.1); }
+        }
+        @keyframes glowPulse {
+          0%, 100% { box-shadow: 0 0 20px rgba(245,158,11,0.4), 0 0 40px rgba(245,158,11,0.2); }
+          50%       { box-shadow: 0 0 30px rgba(245,158,11,0.7), 0 0 60px rgba(245,158,11,0.3); }
+        }
+        .day-selected {
+          animation: dayPop 0.3s ease forwards, glowPulse 2s ease-in-out infinite;
+        }
+      `}</style>
 
-      {/* Blur orbs fundal */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-20 blur-3xl pointer-events-none" style={{ background: '#14B8A6' }} />
-      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full opacity-15 blur-3xl pointer-events-none" style={{ background: '#F97316' }} />
+      <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #2c1a0e 0%, #3d2410 50%, #1c1008 100%)' }}>
 
-      <div className="relative max-w-lg mx-auto px-4 py-12">
+        {/* Blur orbs fundal */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-20 blur-3xl pointer-events-none" style={{ background: '#fcd34d' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full opacity-15 blur-3xl pointer-events-none" style={{ background: '#f59e0b' }} />
 
-        {/* Header */}
-        <div className="text-center mb-10">
-          <p className="text-xs tracking-[0.3em] uppercase font-semibold mb-2" style={{ color: '#14B8A6' }}>Vibe Caffè</p>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Rezervă o masă</h1>
-          <p className="text-white/40 text-sm">3 pași simpli</p>
-        </div>
+        <div className="relative max-w-lg mx-auto px-4 py-12">
 
-        {/* Indicator pași */}
-        <div className="flex items-center justify-center gap-3 mb-10">
-          {[1, 2, 3].map((p) => (
-            <div key={p} className="flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
-                pas === p ? 'text-white scale-110' :
-                pas > p ? 'text-white/70' : 'text-white/30'
-              }`} style={{
-                background: pas === p ? 'linear-gradient(135deg, #14B8A6, #0D9488)' :
-                pas > p ? 'rgba(20,184,166,0.3)' : 'rgba(255,255,255,0.08)'
-              }}>
-                {pas > p ? '✓' : p}
+          {/* Header */}
+          <div className="text-center mb-10">
+            <p className="text-xs tracking-[0.3em] uppercase font-semibold mb-2 text-amber-400">Vibe Caffè</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Rezervă o masă</h1>
+            <p className="text-white/40 text-sm">3 pași simpli</p>
+          </div>
+
+          {/* Indicator pași */}
+          <div className="flex items-center justify-center gap-3 mb-10">
+            {[1, 2, 3].map((p) => (
+              <div key={p} className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
+                  pas === p ? 'text-black scale-110' :
+                  pas > p ? 'text-white/70' : 'text-white/30'
+                }`} style={{
+                  background: pas === p ? 'linear-gradient(135deg, #fcd34d, #f59e0b)' :
+                  pas > p ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.08)',
+                  boxShadow: pas === p ? '0 0 20px rgba(245,158,11,0.4)' : 'none',
+                }}>
+                  {pas > p ? '✓' : p}
+                </div>
+                {p < 3 && <div className="w-10 h-px transition-all duration-500" style={{ background: pas > p ? 'linear-gradient(90deg, #f59e0b, #fcd34d)' : 'rgba(255,255,255,0.15)' }} />}
               </div>
-              {p < 3 && <div className="w-10 h-px" style={{ background: pas > p ? '#14B8A6' : 'rgba(255,255,255,0.15)' }} />}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        {/* PASUL 1: Data */}
-        {pas === 1 && (
-          <div className="rounded-3xl p-6 border" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', borderColor: 'rgba(255,255,255,0.1)' }}>
-            <h2 className="text-xl font-bold text-white mb-1">Alege data</h2>
-            <p className="text-white/40 text-xs mb-6">Disponibil 6 luni în avans</p>
+          {/* PASUL 1: Calendar cu fotografie cafea sus */}
+          {pas === 1 && (() => {
+            const luniRoScurt = ['Ian','Feb','Mar','Apr','Mai','Iun','Iul','Aug','Sep','Oct','Nov','Dec']
+            const luniRoLung = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie']
 
-            {/* Butoane rapide */}
-            <p className="text-white/40 text-xs uppercase tracking-widest mb-3">Zile rapide</p>
-            <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-1 px-1">
-              {urmatoare14.map((d) => (
-                <button key={d} onClick={() => setDataSelectata(d)}
-                  className="flex-shrink-0 flex flex-col items-center px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200"
-                  style={{
-                    background: dataSelectata === d ? 'linear-gradient(135deg, #14B8A6, #0D9488)' : 'rgba(255,255,255,0.08)',
-                    color: dataSelectata === d ? 'white' : 'rgba(255,255,255,0.7)',
-                    transform: dataSelectata === d ? 'scale(1.05)' : 'scale(1)'
-                  }}>
-                  <span className="opacity-70">{getDenumireZi(d)}</span>
-                  <span className="text-base font-bold">{d.split('-')[2]}</span>
-                </button>
-              ))}
-            </div>
+            const luniDisponibile: { luna: number; an: number }[] = []
+            for (let i = 0; i <= 6; i++) {
+              const d = new Date(azi.getFullYear(), azi.getMonth() + i, 1)
+              luniDisponibile.push({ luna: d.getMonth(), an: d.getFullYear() })
+            }
 
-            {/* Calendar */}
-            <p className="text-white/40 text-xs uppercase tracking-widest mb-3">Calendar</p>
-            <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.04)' }}>
-              <div className="flex items-center justify-between mb-4">
-                <button onClick={() => setLunaCalendar(new Date(year, month - 1, 1))} disabled={!potMergeLunaInapoi}
-                  className="w-8 h-8 rounded-lg text-white text-lg transition-all disabled:opacity-20"
-                  style={{ background: 'rgba(255,255,255,0.08)' }}>‹</button>
-                <span className="text-white font-semibold text-sm">{luniRo[month]} {year}</span>
-                <button onClick={() => setLunaCalendar(new Date(year, month + 1, 1))} disabled={!potMergeLunaInainte}
-                  className="w-8 h-8 rounded-lg text-white text-lg transition-all disabled:opacity-20"
-                  style={{ background: 'rgba(255,255,255,0.08)' }}>›</button>
+            const primaZiOffset = new Date(anSelectat, lunaSelectata, 1).getDay()
+            const offsetLuni = primaZiOffset === 0 ? 6 : primaZiOffset - 1
+            const totalZileLuna = new Date(anSelectat, lunaSelectata + 1, 0).getDate()
+
+            return (
+              <div className="rounded-3xl overflow-hidden border" style={{ borderColor: 'rgba(245,158,11,0.2)', background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)' }}>
+
+                {/* Imagine cafea sus */}
+                <div className="relative h-44 overflow-hidden">
+                  <img
+                    src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&auto=format&fit=crop"
+                    alt="Cafea"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(28,16,8,0.1) 0%, rgba(28,16,8,0.6) 100%)' }} />
+                  {/* Selector luni peste imagine — centrat */}
+                  <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-2 px-4 pb-3 pt-2 flex-wrap">
+                    {luniDisponibile.map(({ luna, an }) => {
+                      const activa = luna === lunaSelectata && an === anSelectat
+                      return (
+                        <button
+                          key={`${an}-${luna}`}
+                          onClick={() => { setLunaSelectata(luna); setAnSelectat(an); setDataSelectata('') }}
+                          className="flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-200 hover:scale-105"
+                          style={{
+                            background: activa ? 'linear-gradient(135deg, #fcd34d, #f59e0b)' : 'rgba(0,0,0,0.5)',
+                            color: activa ? '#1c1008' : 'rgba(255,255,255,0.85)',
+                            backdropFilter: 'blur(10px)',
+                            border: activa ? 'none' : '1px solid rgba(255,255,255,0.2)',
+                            boxShadow: activa ? '0 4px 12px rgba(245,158,11,0.4)' : 'none',
+                          }}
+                        >
+                          {luniRoScurt[luna]} {an !== azi.getFullYear() ? an : ''}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Header lună */}
+                <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(245,158,11,0.1)' }}>
+                  <button
+                    onClick={() => {
+                      const prev = new Date(anSelectat, lunaSelectata - 1, 1)
+                      const primaLunaDisp = luniDisponibile[0]
+                      if (prev >= new Date(primaLunaDisp.an, primaLunaDisp.luna, 1)) {
+                        setLunaSelectata(prev.getMonth()); setAnSelectat(prev.getFullYear()); setDataSelectata('')
+                      }
+                    }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110"
+                    style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }}
+                  >‹</button>
+                  <p className="text-white font-bold text-sm tracking-widest uppercase">{luniRoLung[lunaSelectata]} {anSelectat}</p>
+                  <button
+                    onClick={() => {
+                      const next = new Date(anSelectat, lunaSelectata + 1, 1)
+                      const ultimaLuna = luniDisponibile[luniDisponibile.length - 1]
+                      if (next <= new Date(ultimaLuna.an, ultimaLuna.luna, 1)) {
+                        setLunaSelectata(next.getMonth()); setAnSelectat(next.getFullYear()); setDataSelectata('')
+                      }
+                    }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110"
+                    style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }}
+                  >›</button>
+                </div>
+
+                {/* Grid calendar clasic */}
+                <div className="px-4 py-4">
+                  {/* Header zile săptămână */}
+                  <div className="grid grid-cols-7 mb-2">
+                    {['L','M','M','J','V','S','D'].map((z, i) => (
+                      <div key={i} className="text-center text-[11px] font-bold tracking-wider py-1"
+                        style={{ color: i >= 5 ? '#f59e0b' : 'rgba(255,255,255,0.35)' }}>
+                        {z}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Zile */}
+                  <div className="grid grid-cols-7 gap-y-1">
+                    {Array.from({ length: offsetLuni }).map((_, i) => (
+                      <div key={`empty-${i}`} />
+                    ))}
+                    {Array.from({ length: totalZileLuna }).map((_, i) => {
+                      const zi = i + 1
+                      const d = new Date(anSelectat, lunaSelectata, zi)
+                      const dateStr = formatData(d)
+                      const selectata = dataSelectata === dateStr
+                      const esteAziCard = formatData(d) === formatData(azi)
+                      const ziSapt = d.getDay()
+                      const weekend = ziSapt === 0 || ziSapt === 6
+                      const indisponibila = d < new Date(formatData(azi)) || d > maxData
+
+                      return (
+                        <button
+                          key={`zi-${lunaSelectata}-${anSelectat}-${zi}`}
+                          onClick={() => !indisponibila && setDataSelectata(dateStr)}
+                          disabled={indisponibila}
+                          className="relative flex items-center justify-center aspect-square rounded-full text-sm font-semibold transition-all duration-150 mx-auto w-9 h-9"
+                          style={{
+                            background: selectata
+                              ? 'linear-gradient(135deg, #fcd34d, #f59e0b)'
+                              : esteAziCard
+                              ? 'rgba(245,158,11,0.15)'
+                              : 'transparent',
+                            color: selectata
+                              ? '#1c1008'
+                              : indisponibila
+                              ? 'rgba(255,255,255,0.15)'
+                              : weekend
+                              ? '#fcd34d'
+                              : 'rgba(255,255,255,0.85)',
+                            boxShadow: selectata ? '0 4px 15px rgba(245,158,11,0.4)' : 'none',
+                            border: esteAziCard && !selectata ? '1px solid rgba(245,158,11,0.4)' : 'none',
+                            fontWeight: selectata || esteAziCard ? 700 : 500,
+                          }}
+                        >
+                          {zi}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Footer: preview dată + buton */}
+                <div className="px-4 pb-5 pt-2" style={{ borderTop: '1px solid rgba(245,158,11,0.08)' }}>
+                  {dataSelectata ? (
+                    <div className="flex items-center justify-between">
+                      <div className="px-4 py-2 rounded-2xl" style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}>
+                        <p className="text-amber-400 font-semibold text-sm">✦ {formatDataRo(dataSelectata)}</p>
+                      </div>
+                      <button
+                        onClick={() => setPas(2)}
+                        className="px-6 py-2.5 font-bold rounded-2xl text-black text-sm transition-all hover:scale-105 hover:shadow-[0_6px_20px_rgba(245,158,11,0.4)]"
+                        style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)' }}
+                      >
+                        Continuă →
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-center text-sm font-semibold py-1" style={{ color: 'rgba(255,255,255,0.55)', letterSpacing: '0.1em' }}>← Selectează o zi din calendar →</p>
+                  )}
+                </div>
               </div>
-              <div className="grid grid-cols-7 mb-1">
-                {['Du','Lu','Ma','Mi','Jo','Vi','Sâ'].map((z) => (
-                  <div key={z} className="text-center text-white/25 text-xs py-1">{z}</div>
+            )
+          })()}
+
+          {/* PASUL 2: Ora */}
+          {pas === 2 && (
+            <div className="rounded-3xl p-6 border" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', borderColor: 'rgba(245,158,11,0.15)' }}>
+              <h2 className="text-xl font-bold text-white mb-1">Alege ora</h2>
+              <p className="text-xs mb-6 text-amber-400">{formatDataRo(dataSelectata)}</p>
+              <div className="grid grid-cols-4 gap-2">
+                {ORE_DISPONIBILE.map((o) => (
+                  <button key={o} onClick={() => setOraSelectata(o)}
+                    className="py-3 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-105"
+                    style={{
+                      background: oraSelectata === o ? 'linear-gradient(135deg, #fcd34d, #f59e0b)' : 'rgba(255,255,255,0.08)',
+                      color: oraSelectata === o ? '#1c1008' : 'rgba(0,0,0,0.6)',
+                      boxShadow: oraSelectata === o ? '0 4px 15px rgba(245,158,11,0.4)' : 'none',
+                      transform: oraSelectata === o ? 'scale(1.05)' : 'scale(1)',
+                      border: oraSelectata === o ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                    }}>
+                    {o}
+                  </button>
                 ))}
               </div>
-              <div className="grid grid-cols-7 gap-1">
-                {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} />)}
-                {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((zi) => {
-                  const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(zi).padStart(2, '0')}`
-                  const disponibila = esteDisponibila(zi)
-                  const selectata = dataSelectata === dateStr
-                  return (
-                    <button key={zi} onClick={() => disponibila && setDataSelectata(dateStr)} disabled={!disponibila}
-                      className="aspect-square rounded-lg text-sm font-medium transition-all duration-200"
-                      style={{
-                        background: selectata ? 'linear-gradient(135deg, #14B8A6, #0D9488)' : 'transparent',
-                        color: selectata ? 'white' : disponibila ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.15)',
-                        cursor: disponibila ? 'pointer' : 'not-allowed',
-                        transform: selectata ? 'scale(1.1)' : 'scale(1)'
-                      }}>
-                      {zi}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            <button onClick={() => setPas(2)} disabled={!dataSelectata}
-              className="w-full mt-6 py-4 font-bold rounded-2xl text-white transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
-              style={{ background: 'linear-gradient(135deg, #14B8A6, #0D9488)' }}>
-              Continuă →
-            </button>
-          </div>
-        )}
-
-        {/* PASUL 2: Ora */}
-        {pas === 2 && (
-          <div className="rounded-3xl p-6 border" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', borderColor: 'rgba(255,255,255,0.1)' }}>
-            <h2 className="text-xl font-bold text-white mb-1">Alege ora</h2>
-            <p className="text-xs mb-6" style={{ color: '#14B8A6' }}>{formatDataRo(dataSelectata)}</p>
-            <div className="grid grid-cols-4 gap-2">
-              {ORE_DISPONIBILE.map((o) => (
-                <button key={o} onClick={() => setOraSelectata(o)}
-                  className="py-3 rounded-xl text-sm font-semibold transition-all duration-200"
-                  style={{
-                    background: oraSelectata === o ? 'linear-gradient(135deg, #14B8A6, #0D9488)' : 'rgba(255,255,255,0.08)',
-                    color: oraSelectata === o ? 'white' : 'rgba(255,255,255,0.75)',
-                    transform: oraSelectata === o ? 'scale(1.05)' : 'scale(1)'
-                  }}>
-                  {o}
+              <div className="flex gap-3 mt-6">
+                <button onClick={() => setPas(1)} className="flex-1 py-4 rounded-2xl font-semibold text-white/50 transition-all hover:bg-white/5" style={{ border: '1px solid rgba(255,255,255,0.15)' }}>
+                  ← Înapoi
                 </button>
-              ))}
-            </div>
-            <div className="flex gap-3 mt-6">
-              <button onClick={() => setPas(1)} className="flex-1 py-4 rounded-2xl font-semibold text-white/70 transition-all" style={{ border: '1px solid rgba(255,255,255,0.15)' }}>
-                ← Înapoi
-              </button>
-              <button onClick={() => setPas(3)} disabled={!oraSelectata}
-                className="flex-1 py-4 rounded-2xl font-bold text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                style={{ background: 'linear-gradient(135deg, #14B8A6, #0D9488)' }}>
-                Continuă →
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* PASUL 3: Detalii */}
-        {pas === 3 && (
-          <div className="rounded-3xl p-6 border" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', borderColor: 'rgba(255,255,255,0.1)' }}>
-            <h2 className="text-xl font-bold text-white mb-1">Detaliile tale</h2>
-            <p className="text-xs mb-6" style={{ color: '#14B8A6' }}>{formatDataRo(dataSelectata)} la {oraSelectata}</p>
-
-            <div className="space-y-4">
-              {[
-                { label: 'Nume complet *', key: 'nume', type: 'text', placeholder: 'Ex: Maria Ionescu' },
-                { label: 'Email *', key: 'email', type: 'email', placeholder: 'Ex: maria@gmail.com' },
-                { label: 'Telefon *', key: 'telefon', type: 'tel', placeholder: 'Ex: 07xxxxxxxx' },
-              ].map(({ label, key, type, placeholder }) => (
-                <div key={key}>
-                  <label className="text-white/50 text-xs mb-1.5 block">{label}</label>
-                  <input type={type} placeholder={placeholder}
-                    value={form[key as keyof typeof form] as string}
-                    onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                    className="w-full rounded-2xl px-5 py-3.5 text-white text-sm placeholder-white/25 focus:outline-none transition-all"
-                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
-                    onFocus={(e) => e.target.style.borderColor = '#14B8A6'}
-                    onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.15)'}
-                  />
-                </div>
-              ))}
-
-              <div>
-                <label className="text-white/50 text-xs mb-1.5 block">Număr persoane (1–12)</label>
-                <div className="flex items-center gap-4">
-                  <button onClick={() => setForm({ ...form, numar_persoane: Math.max(1, form.numar_persoane - 1) })}
-                    className="w-12 h-12 rounded-xl text-2xl font-bold text-white transition-all"
-                    style={{ background: 'rgba(255,255,255,0.08)' }}>−</button>
-                  <span className="text-white text-2xl font-bold w-8 text-center">{form.numar_persoane}</span>
-                  <button onClick={() => setForm({ ...form, numar_persoane: Math.min(12, form.numar_persoane + 1) })}
-                    className="w-12 h-12 rounded-xl text-2xl font-bold text-white transition-all"
-                    style={{ background: 'rgba(255,255,255,0.08)' }}>+</button>
-                </div>
+                <button onClick={() => setPas(3)} disabled={!oraSelectata}
+                  className="flex-1 py-4 rounded-2xl font-bold text-black transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(245,158,11,0.4)]"
+                  style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)' }}>
+                  Continuă →
+                </button>
               </div>
             </div>
+          )}
 
-            {eroare && <p className="text-red-400 text-sm mt-4">{eroare}</p>}
+          {/* PASUL 3: Detalii */}
+          {pas === 3 && (
+            <div className="rounded-3xl p-6 border" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', borderColor: 'rgba(245,158,11,0.15)' }}>
+              <h2 className="text-xl font-bold text-white mb-1">Detaliile tale</h2>
+              <p className="text-xs mb-6 text-amber-400">{formatDataRo(dataSelectata)} la {oraSelectata}</p>
 
-            <div className="flex gap-3 mt-8">
-              <button onClick={() => setPas(2)} className="flex-1 py-4 rounded-2xl font-semibold text-white/70 transition-all" style={{ border: '1px solid rgba(255,255,255,0.15)' }}>
-                ← Înapoi
-              </button>
-              <button onClick={trimite} disabled={!form.nume || !form.email || !form.telefon || loading}
-                className="flex-1 py-4 rounded-2xl font-bold text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}>
-                {loading ? (
-                  <>
-                    <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                    </svg>
-                    Se trimite...
-                  </>
-                ) : 'Rezervă acum'}
-              </button>
+              <div className="space-y-4">
+                {[
+                  { label: 'Nume complet *', key: 'nume', type: 'text', placeholder: 'Ex: Maria Ionescu' },
+                  { label: 'Email *', key: 'email', type: 'email', placeholder: 'Ex: maria@gmail.com' },
+                  { label: 'Telefon *', key: 'telefon', type: 'tel', placeholder: 'Ex: 07xxxxxxxx' },
+                ].map(({ label, key, type, placeholder }) => (
+                  <div key={key}>
+                    <label className="text-white/50 text-xs mb-1.5 block">{label}</label>
+                    <input type={type} placeholder={placeholder}
+                      value={form[key as keyof typeof form] as string}
+                      onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                      className="w-full rounded-2xl px-5 py-3.5 text-white text-sm placeholder-white/25 focus:outline-none transition-all"
+                      style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
+                      onFocus={(e) => { e.target.style.borderColor = '#f59e0b'; e.target.style.boxShadow = '0 0 0 3px rgba(245,158,11,0.15)' }}
+                      onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; e.target.style.boxShadow = 'none' }}
+                    />
+                  </div>
+                ))}
+
+                {/* Confirmare email */}
+                <div>
+                  <p className="text-white/30 text-[11px]">✉️ Confirmarea se trimite pe email la: <span className="text-amber-400/60">{form.email || 'adresa ta de email'}</span></p>
+                </div>
+
+                <div>
+                  <label className="text-white/50 text-xs mb-1.5 block">Număr persoane (1–12)</label>
+                  <div className="flex items-center gap-4">
+                    <button onClick={() => setForm({ ...form, numar_persoane: Math.max(1, form.numar_persoane - 1) })}
+                      className="w-12 h-12 rounded-xl text-2xl font-bold text-white transition-all hover:scale-110"
+                      style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(0,0,0,0.1)' }}>−</button>
+                    <span className="text-white text-2xl font-bold w-8 text-center">{form.numar_persoane}</span>
+                    <button onClick={() => setForm({ ...form, numar_persoane: Math.min(12, form.numar_persoane + 1) })}
+                      className="w-12 h-12 rounded-xl text-2xl font-bold text-white transition-all hover:scale-110"
+                      style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(0,0,0,0.1)' }}>+</button>
+                  </div>
+                </div>
+              </div>
+
+              {eroare && <p className="text-red-500 text-sm mt-4">{eroare}</p>}
+
+              <div className="flex gap-3 mt-8">
+                <button onClick={() => setPas(2)} className="flex-1 py-4 rounded-2xl font-semibold text-white/50 transition-all hover:bg-white/5" style={{ border: '1px solid rgba(255,255,255,0.15)' }}>
+                  ← Înapoi
+                </button>
+                <button onClick={trimite} disabled={!form.nume || !form.email || !form.telefon || loading}
+                  className="flex-1 py-4 rounded-2xl font-bold text-black transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(245,158,11,0.4)]"
+                  style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)' }}>
+                  {loading ? (
+                    <>
+                      <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                      </svg>
+                      Se trimite...
+                    </>
+                  ) : 'Rezervă acum ✦'}
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
+        </div>
       </div>
-    </div>
+    </>
   )
 }

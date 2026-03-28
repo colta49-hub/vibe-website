@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 
 const LINKS = [
-  { label: 'Acasă', href: '#' },
+  { label: 'Acasă', href: '/' },
   { label: 'De ce noi', href: '#features' },
   { label: 'Despre', href: '#despre' },
   { label: 'Meniu', href: '#menu' },
@@ -13,6 +14,8 @@ const LINKS = [
 export default function NavbarStarter() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const pathname = usePathname()
+  const paginaDeschisa = pathname === '/rezervari' || pathname === '/locatie'
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -20,16 +23,18 @@ export default function NavbarStarter() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  const bgStyle = paginaDeschisa
+    ? { background: 'rgba(28, 16, 8, 0.95)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(245,158,11,0.15)' }
+    : {
+        background: scrolled ? 'rgba(28, 16, 8, 0.95)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(16px)' : 'none',
+        borderBottom: scrolled ? '1px solid rgba(245,158,11,0.15)' : '1px solid transparent',
+      }
+
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
-      style={{
-        background: scrolled
-          ? 'rgba(28, 16, 8, 0.95)'
-          : 'transparent',
-        backdropFilter: scrolled ? 'blur(16px)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(245,158,11,0.15)' : '1px solid transparent',
-      }}
+      style={bgStyle}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16 md:h-20">
 
