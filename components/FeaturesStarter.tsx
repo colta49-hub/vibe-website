@@ -47,7 +47,7 @@ export default function FeaturesStarter() {
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
               animation: 'shimmer 3s linear infinite',
-            }}>Vibe Coffee?</span>
+            }}>Vibe Caffè?</span>
           </h2>
           <p className="text-white/70 text-xl md:text-2xl mt-6 max-w-xl leading-relaxed">
             Experiență unică, ingrediente premium, atmosferă perfectă.

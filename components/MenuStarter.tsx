@@ -136,7 +136,7 @@ export default function MenuStarter() {
                     animation: 'shimmer 3s linear infinite',
                   }}
                 >{item.name}</span>
-                <span className="text-amber-600 font-bold text-sm">{item.price.toFixed(2)} €</span>
+                <span className="text-amber-600 font-bold text-sm">£{item.price.toFixed(2)}</span>
               </div>
             </div>
           ))}

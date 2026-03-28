@@ -66,7 +66,7 @@ export default function AboutStarter() {
               backgroundClip: 'text',
               animation: 'shimmer 3s linear infinite',
             }}>
-              Vibe Coffee
+              Vibe Caffè
             </span>
           </h2>
         </div>
@@ -80,7 +80,7 @@ export default function AboutStarter() {
           Povestea noastră
         </p>
         <blockquote className="text-2xl md:text-3xl font-semibold text-gray-800 leading-relaxed mb-8 italic">
-          „Am deschis Vibe Coffee pentru că credeam că o cafea bună poate schimba tonul unei zile întregi."
+          „Am deschis Vibe Caffè pentru că credeam că o cafea bună poate schimba tonul unei zile întregi."
         </blockquote>
 
         {/* Descriere */}
