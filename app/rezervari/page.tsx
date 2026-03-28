@@ -45,6 +45,7 @@ export default function PaginaRezervari() {
   const [succes, setSucces] = useState(false)
   const [eroare, setEroare] = useState('')
   const [hoveredDay, setHoveredDay] = useState<number | null>(null)
+  const [oreOcupate, setOreOcupate] = useState<string[]>([])
 
   const year = lunaCalendar.getFullYear()
   const month = lunaCalendar.getMonth()
@@ -91,6 +92,14 @@ export default function PaginaRezervari() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (!dataSelectata) { setOreOcupate([]); return }
+    fetch(`/api/ore-ocupate?data=${dataSelectata}`)
+      .then(r => r.json())
+      .then(j => setOreOcupate(j.ore ?? []))
+      .catch(() => setOreOcupate([]))
+  }, [dataSelectata])
 
   function rezervareNoua() {
     setPas(1); setDataSelectata(''); setOraSelectata('')
@@ -338,7 +347,7 @@ export default function PaginaRezervari() {
               <h2 className="text-xl font-bold text-white mb-1">Alege ora</h2>
               <p className="text-xs mb-6 text-amber-400">{formatDataRo(dataSelectata)}</p>
               <div className="grid grid-cols-4 gap-2">
-                {ORE_DISPONIBILE.map((o) => (
+                {ORE_DISPONIBILE.filter(o => !oreOcupate.includes(o)).map((o) => (
                   <button key={o} onClick={() => setOraSelectata(o)}
                     className="py-3 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-105"
                     style={{

@@ -12,11 +12,22 @@ export interface Rezervare {
 export async function salveazaRezervare(rezervare: Rezervare) {
   const { data, error } = await supabase
     .from('rezervari')
-    .insert([rezervare])
+    .insert([{ ...rezervare, status: 'confirmat' }])
     .select()
 
   if (error) throw error
   return data
+}
+
+export async function citesteOreOcupate(data: string): Promise<string[]> {
+  const { data: rows, error } = await supabase
+    .from('rezervari')
+    .select('ora')
+    .eq('data', data)
+    .eq('status', 'confirmat')
+
+  if (error) throw error
+  return rows.map((r: { ora: string }) => r.ora)
 }
 
 export async function citesteRezervari() {
