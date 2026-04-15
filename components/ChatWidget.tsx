@@ -88,17 +88,7 @@ export default function ChatWidget() {
     <>
       {/* FEREASTRA CHAT */}
       {isOpen && (
-        <div
-          className="fixed bottom-24 right-6 z-50 flex flex-col rounded-2xl overflow-hidden md:w-[360px] md:h-[520px]"
-          style={{
-            width: 'calc(100vw - 24px)',
-            height: 'calc(100dvh - 100px)',
-            maxWidth: '360px',
-            maxHeight: '520px',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.25), 0 8px 20px rgba(0,0,0,0.15)',
-            background: '#ffffff',
-          }}
-        >
+        <div className="chat-window fixed z-50 flex flex-col overflow-hidden" style={{ background: '#ffffff', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}>
           {/* HEADER */}
           <div
             className="flex items-center gap-3 px-5 py-4"
@@ -228,10 +218,10 @@ export default function ChatWidget() {
         </div>
       )}
 
-      {/* TOOLTIP */}
+      {/* TOOLTIP — doar pe desktop */}
       {!isOpen && (
         <div
-          className="fixed bottom-8 right-24 z-50 px-3 py-2 rounded-full text-xs font-semibold whitespace-nowrap"
+          className="hidden md:block fixed bottom-8 right-24 z-50 px-3 py-2 rounded-full text-xs font-semibold whitespace-nowrap"
           style={{
             background: '#0D9488',
             color: '#fff',
@@ -274,6 +264,20 @@ export default function ChatWidget() {
         @keyframes pulse-chat {
           0%, 100% { transform: scale(1); box-shadow: 0 8px 25px rgba(20,184,166,0.5); }
           50% { transform: scale(1.08); box-shadow: 0 12px 35px rgba(20,184,166,0.7); }
+        }
+        /* Mobil: full screen */
+        .chat-window {
+          top: 0; left: 0; right: 0; bottom: 0;
+          border-radius: 0;
+        }
+        /* Desktop: floating window */
+        @media (min-width: 768px) {
+          .chat-window {
+            top: auto; left: auto;
+            bottom: 96px; right: 24px;
+            width: 360px; height: 520px;
+            border-radius: 16px;
+          }
         }
       `}</style>
     </>
