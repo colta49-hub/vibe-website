@@ -47,12 +47,12 @@ export default function HeroStarter() {
           className="mb-8"
           style={{ animation: 'fadeInUp 0.8s ease 0.1s both' }}
         >
-          <img src="/logo-vibe-v1.svg" alt="Vibe Caffè" className="h-16 mx-auto" />
+          <img src="/logo-vibe-v1.svg" alt="Vibe Caffè" className="h-24 mx-auto" />
         </div>
 
         {/* TITLU */}
         <h1
-          className="text-5xl sm:text-9xl md:text-[11rem] font-bold leading-none mb-4 sm:mb-6 text-white"
+          className="text-4xl sm:text-6xl md:text-7xl font-bold leading-none mb-4 sm:mb-6 text-white"
           style={{
             animation: 'fadeInUp 0.8s ease 0.3s both',
             textShadow: '0 4px 30px rgba(0,0,0,0.8), 0 2px 10px rgba(0,0,0,0.6)',
@@ -81,7 +81,7 @@ export default function HeroStarter() {
             filter: 'drop-shadow(0 4px 20px rgba(0,0,0,0.7)) drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
           }}
         >
-          Cafeaua care te seduce din prima înghițitură
+          Cafeaua care te seduce de la prima întâlnire
         </p>
 
         {/* BUTOANE CTA */}
