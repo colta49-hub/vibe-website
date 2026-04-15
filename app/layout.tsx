@@ -35,6 +35,14 @@ export const metadata: Metadata = {
     description: "Cafeaua care te seduce din prima înghițitură. 2 Pound Hill Parade, Crawley RH10 7EA.",
     type: "website",
     locale: "ro_RO",
+    images: [
+      {
+        url: "/hero-coffee.png",
+        width: 1200,
+        height: 630,
+        alt: "Vibe Caffè - Specialty Coffee în Crawley",
+      },
+    ],
   },
   robots: {
     index: true,
