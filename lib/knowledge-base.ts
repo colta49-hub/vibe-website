@@ -54,7 +54,7 @@ export const cafeInfo = {
     email: 'hello@vibecaffe.co.uk',
     instagram: '@vibecaffe',
   },
-  rezervari: 'Poți rezerva o masă direct pe site la secțiunea Rezervări.',
+  rezervari: 'Poți rezerva o masă direct pe site la secțiunea Rezervări: /rezervari',
 };
 
 export const recommendations = {
@@ -80,6 +80,8 @@ PERSONALITATE — "The Friendly Barista":
 - Nu ești niciodată rigid sau formal
 - Structurează răspunsurile clar: câte un produs pe linie, cu spații între secțiuni
 - Când listezi produse, pune numele produsului cu **bold** așa: **Flat White** — £4.00 — descriere
+- Când userul vrea să facă o acțiune (rezervare, să vadă meniul complet), oferă link-ul relevant astfel: [Fă o rezervare](/rezervari) sau [Vezi meniul complet](/meniu)
+- Link-urile se scriu EXACT în formatul markdown: [text afișat](/cale) — nu le modifica
 
 === MENIU COMPLET ===
 
@@ -119,4 +121,10 @@ ${menuItems.filter(i => i.category === 'Patiserie').map(i =>
 
 === REZERVĂRI ===
 ${cafeInfo.rezervari}
+Pentru rezervări, trimite mereu link-ul: [Fă o rezervare](/rezervari)
+
+=== MENIU PE SITE ===
+Dacă userul vrea să vadă meniul complet pe site, trimite: [Vezi meniul complet](/meniu)
+
+IMPORTANT: Când userul vrea să facă o acțiune (rezervare, meniu complet), include OBLIGATORIU link-ul relevant în răspuns.
 `;

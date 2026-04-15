@@ -7,8 +7,18 @@ interface Message {
   content: string;
 }
 
+const QUICK_REPLIES_INITIAL = ['Vezi meniu', 'Recomandări', 'Rezervări', 'Program'];
+
+const CONTEXTUAL_REPLIES: Record<string, string[]> = {
+  meniu: ['Opțiuni vegane', 'Deserturi', 'Cafea rece'],
+  rezerv: ['Fă o rezervare', 'Program'],
+  vegan: ['Opțiuni vegane', 'Deserturi'],
+  cafea: ['Espresso', 'Cafea rece', 'Specialty'],
+};
+
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const [quickReplies, setQuickReplies] = useState<string[]>(QUICK_REPLIES_INITIAL);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -25,12 +35,22 @@ export default function ChatWidget() {
     }
   }, [messages, isOpen]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+  const getContextualReplies = (text: string): string[] => {
+    const lower = text.toLowerCase();
+    for (const [keyword, replies] of Object.entries(CONTEXTUAL_REPLIES)) {
+      if (lower.includes(keyword)) return replies;
+    }
+    return [];
+  };
 
-    const userMessage: Message = { role: 'user', content: input.trim() };
+  const sendMessage = async (text?: string) => {
+    const messageText = text ?? input.trim();
+    if (!messageText || loading) return;
+
+    const userMessage: Message = { role: 'user', content: messageText };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
+    setQuickReplies([]);
     setLoading(true);
 
     try {
@@ -42,6 +62,7 @@ export default function ChatWidget() {
 
       const data = await res.json();
       setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
+      setQuickReplies(getContextualReplies(data.reply));
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -57,6 +78,10 @@ export default function ChatWidget() {
       e.preventDefault();
       sendMessage();
     }
+  };
+
+  const handleQuickReply = (text: string) => {
+    sendMessage(text);
   };
 
   return (
@@ -117,6 +142,7 @@ export default function ChatWidget() {
                   {msg.content.split('\n').map((line, j) => {
                     const formatted = line
                       .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#b45309;font-weight:700">$1</strong>')
+                      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:#d97706;font-weight:600;text-decoration:underline;" target="_self">$1</a>')
                       .replace(/^[-•]\s/, '• ');
                     return line.trim() === '' ? (
                       <div key={j} className="h-2" />
@@ -150,6 +176,26 @@ export default function ChatWidget() {
             <div ref={messagesEndRef} />
           </div>
 
+          {/* QUICK REPLIES */}
+          {quickReplies.length > 0 && !loading && (
+            <div className="flex flex-wrap gap-2 px-4 py-2" style={{ borderTop: '1px solid #e8d5b0', background: '#faf5ec' }}>
+              {quickReplies.map((reply) => (
+                <button
+                  key={reply}
+                  onClick={() => handleQuickReply(reply)}
+                  className="text-xs px-3 py-1.5 rounded-full font-semibold transition-all duration-200 hover:scale-105"
+                  style={{
+                    background: 'linear-gradient(135deg, #fcd34d, #f59e0b)',
+                    color: '#1c1008',
+                    boxShadow: '0 2px 6px rgba(245,158,11,0.3)',
+                  }}
+                >
+                  {reply}
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* INPUT */}
           <div
             className="flex items-center gap-2 px-4 py-3 border-t"
@@ -164,7 +210,7 @@ export default function ChatWidget() {
               className="flex-1 text-sm outline-none bg-transparent text-gray-800 placeholder-gray-400"
             />
             <button
-              onClick={sendMessage}
+              onClick={() => sendMessage()}
               disabled={!input.trim() || loading}
               className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-40"
               style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)' }}
