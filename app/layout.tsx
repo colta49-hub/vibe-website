@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     locale: "ro_RO",
     images: [
       {
-        url: "/hero-coffee.png",
+        url: "/hero-coffee.webp",
         width: 1200,
         height: 630,
         alt: "Vibe Caffè - Specialty Coffee în Crawley",
