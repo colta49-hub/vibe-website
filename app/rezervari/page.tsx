@@ -119,6 +119,9 @@ export default function PaginaRezervari() {
           <button onClick={rezervareNoua} className="w-full py-4 font-bold rounded-2xl text-black transition-all duration-300 hover:opacity-90 hover:scale-[1.02]" style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)' }}>
             Fă o rezervare nouă
           </button>
+          <a href="/" className="block w-full py-4 font-semibold rounded-2xl text-center mt-3 transition-all duration-300 hover:bg-white/10" style={{ border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.6)' }}>
+            ← Înapoi la pagina principală
+          </a>
         </div>
       </div>
     )
@@ -159,6 +162,9 @@ export default function PaginaRezervari() {
 
           {/* Header */}
           <div className="text-center mb-10">
+            <a href="/" className="inline-flex items-center gap-2 text-xs text-white/40 hover:text-amber-400 transition-colors mb-4">
+              ← Pagina principală
+            </a>
             <p className="text-xs tracking-[0.3em] uppercase font-semibold mb-2 text-amber-400">Vibe Caffè</p>
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Rezervă o masă</h1>
             <p className="text-white/40 text-sm">3 pași simpli</p>

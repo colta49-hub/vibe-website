@@ -75,7 +75,7 @@ export default function FeaturesStarter() {
               <p className="text-amber-400 text-[10px] tracking-[0.3em] uppercase font-semibold mb-4">Specialty Coffee</p>
               <div className="w-8 h-px bg-amber-400 mb-5" />
               <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight mb-4">
-                Calitate din prima înghițitură
+                Boabe alese. Gust de neuitat.
               </h3>
               <p className="text-white/60 text-sm leading-relaxed">
                 Boabe selectate din cele mai bune origini, prăjite artizanal și preparate cu precizie.
