@@ -89,23 +89,25 @@ export default function ChatWidget() {
       {/* FEREASTRA CHAT */}
       {isOpen && (
         <div
-          className="fixed bottom-24 right-6 z-50 flex flex-col rounded-3xl overflow-hidden"
+          className="fixed bottom-24 right-6 z-50 flex flex-col rounded-2xl overflow-hidden md:w-[360px] md:h-[520px]"
           style={{
-            width: '360px',
-            height: '520px',
+            width: 'calc(100vw - 24px)',
+            height: 'calc(100dvh - 100px)',
+            maxWidth: '360px',
+            maxHeight: '520px',
             boxShadow: '0 20px 60px rgba(0,0,0,0.25), 0 8px 20px rgba(0,0,0,0.15)',
-            background: '#faf5ec',
+            background: '#ffffff',
           }}
         >
           {/* HEADER */}
           <div
             className="flex items-center gap-3 px-5 py-4"
-            style={{ background: 'linear-gradient(135deg, #1c1008 0%, #2c1810 100%)' }}
+            style={{ background: 'linear-gradient(135deg, #0D9488 0%, #14B8A6 100%)' }}
           >
             <div className="text-2xl">☕</div>
             <div>
-              <p className="text-white font-bold text-sm tracking-wide">Barista Bot</p>
-              <p className="text-amber-400 text-xs">Vibe Caffè · Online</p>
+              <p className="text-white font-bold text-sm tracking-wide" style={{ fontFamily: 'var(--font-heading)' }}>Barista Bot</p>
+              <p className="text-white/80 text-xs">Vibe Caffè · Online</p>
             </div>
             <button
               onClick={() => setIsOpen(false)}
@@ -127,15 +129,16 @@ export default function ChatWidget() {
                   style={
                     msg.role === 'user'
                       ? {
-                          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                          background: 'linear-gradient(135deg, #F97316, #EA580C)',
                           color: '#fff',
                           borderBottomRightRadius: '4px',
                         }
                       : {
-                          background: '#fff',
-                          color: '#1c1008',
+                          background: '#f0fdfa',
+                          color: '#1F2937',
                           borderBottomLeftRadius: '4px',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                          boxShadow: '0 2px 8px rgba(20,184,166,0.1)',
+                          border: '1px solid #ccfbf1',
                         }
                   }
                 >
@@ -166,9 +169,9 @@ export default function ChatWidget() {
                   }}
                 >
                   <span className="flex gap-1 items-center">
-                    <span className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <span className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#14B8A6', animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#14B8A6', animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#14B8A6', animationDelay: '300ms' }} />
                   </span>
                 </div>
               </div>
@@ -178,16 +181,17 @@ export default function ChatWidget() {
 
           {/* QUICK REPLIES */}
           {quickReplies.length > 0 && !loading && (
-            <div className="flex flex-wrap gap-2 px-4 py-2" style={{ borderTop: '1px solid #e8d5b0', background: '#faf5ec' }}>
+            <div className="flex flex-wrap gap-2 px-4 py-2" style={{ borderTop: '1px solid #ccfbf1', background: '#f0fdfa' }}>
               {quickReplies.map((reply) => (
                 <button
                   key={reply}
                   onClick={() => handleQuickReply(reply)}
                   className="text-xs px-3 py-1.5 rounded-full font-semibold transition-all duration-200 hover:scale-105"
                   style={{
-                    background: 'linear-gradient(135deg, #fcd34d, #f59e0b)',
-                    color: '#1c1008',
-                    boxShadow: '0 2px 6px rgba(245,158,11,0.3)',
+                    background: 'transparent',
+                    color: '#0D9488',
+                    border: '1.5px solid #14B8A6',
+                    boxShadow: '0 2px 6px rgba(20,184,166,0.15)',
                   }}
                 >
                   {reply}
@@ -199,7 +203,7 @@ export default function ChatWidget() {
           {/* INPUT */}
           <div
             className="flex items-center gap-2 px-4 py-3 border-t"
-            style={{ borderColor: '#e8d5b0', background: '#fff' }}
+            style={{ borderColor: '#ccfbf1', background: '#fff' }}
           >
             <input
               type="text"
@@ -213,7 +217,7 @@ export default function ChatWidget() {
               onClick={() => sendMessage()}
               disabled={!input.trim() || loading}
               className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)' }}
+              style={{ background: 'linear-gradient(135deg, #14B8A6, #0D9488)' }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path d="M22 2L11 13" stroke="#1c1008" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -229,15 +233,15 @@ export default function ChatWidget() {
         <div
           className="fixed bottom-8 right-24 z-50 px-3 py-2 rounded-full text-xs font-semibold whitespace-nowrap"
           style={{
-            background: '#1c1008',
-            color: '#fcd34d',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+            background: '#0D9488',
+            color: '#fff',
+            boxShadow: '0 4px 15px rgba(20,184,166,0.3)',
           }}
         >
           Bună! Hai să discutăm ☕
           <div
             className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 rotate-45"
-            style={{ background: '#1c1008' }}
+            style={{ background: '#0D9488' }}
           />
         </div>
       )}
@@ -248,11 +252,11 @@ export default function ChatWidget() {
         className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300"
         style={{
           background: isOpen
-            ? 'linear-gradient(135deg, #1c1008, #2c1810)'
-            : 'linear-gradient(135deg, #fcd34d, #f59e0b)',
+            ? 'linear-gradient(135deg, #0D9488, #14B8A6)'
+            : 'linear-gradient(135deg, #14B8A6, #0D9488)',
           boxShadow: isOpen
-            ? '0 8px 25px rgba(28,16,8,0.4)'
-            : '0 8px 25px rgba(245,158,11,0.5)',
+            ? '0 8px 25px rgba(13,148,136,0.4)'
+            : '0 8px 25px rgba(20,184,166,0.5)',
           animation: isOpen ? 'none' : 'pulse-chat 2.5s ease-in-out infinite',
         }}
       >
@@ -268,8 +272,8 @@ export default function ChatWidget() {
       {/* ANIMAȚIE PULSE */}
       <style>{`
         @keyframes pulse-chat {
-          0%, 100% { transform: scale(1); box-shadow: 0 8px 25px rgba(245,158,11,0.5); }
-          50% { transform: scale(1.08); box-shadow: 0 12px 35px rgba(245,158,11,0.7); }
+          0%, 100% { transform: scale(1); box-shadow: 0 8px 25px rgba(20,184,166,0.5); }
+          50% { transform: scale(1.08); box-shadow: 0 12px 35px rgba(20,184,166,0.7); }
         }
       `}</style>
     </>
