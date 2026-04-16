@@ -62,7 +62,12 @@ function formateazaDurata(ore: number): string {
 }
 
 function getAzi() { return new Date() }
-function formatData(date: Date) { return date.toISOString().split('T')[0] }
+function formatData(date: Date) {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
 function addLuni(date: Date, n: number) { const d = new Date(date); d.setMonth(d.getMonth() + n); return d }
 function getDaysInMonth(y: number, m: number) { return new Date(y, m + 1, 0).getDate() }
 function getFirstDayOfMonth(y: number, m: number) {
@@ -105,6 +110,12 @@ export default function PaginaRezervari() {
   const [eroare, setEroare] = useState('')
   const [hoveredDay, setHoveredDay] = useState<number | null>(null)
   const [oreOcupate, setOreOcupate] = useState<string[]>([])
+  // Verificare email prin cod
+  const [codTrimis, setCodTrimis] = useState(false)
+  const [codVerificare, setCodVerificare] = useState('')
+  const [loadingCod, setLoadingCod] = useState(false)
+  const [eroreCod, setEroreCod] = useState('')
+  const [timerCod, setTimerCod] = useState(0) // secunde până poate retrimite
 
   // Închide dropdown la click în afară
   useEffect(() => {
@@ -145,6 +156,37 @@ export default function PaginaRezervari() {
     }, 280)
   }
 
+  // Timer countdown pentru retrimitere cod
+  useEffect(() => {
+    if (timerCod <= 0) return
+    const interval = setInterval(() => setTimerCod(t => t - 1), 1000)
+    return () => clearInterval(interval)
+  }, [timerCod])
+
+  async function trimiteCod() {
+    const erori: { email?: string; telefon?: string } = {}
+    if (!validareEmail(form.email)) erori.email = 'Adresa de email nu este validă.'
+    if (Object.keys(erori).length > 0) { setEroriForm(erori); return }
+    setEroriForm({})
+    setLoadingCod(true); setEroreCod('')
+    try {
+      const res = await fetch('/api/trimite-cod', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email }),
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.eroare)
+      setCodTrimis(true)
+      setCodVerificare('')
+      setTimerCod(60) // 60 secunde până poate retrimite
+    } catch (e: unknown) {
+      setEroreCod(e instanceof Error ? e.message : 'Eroare la trimiterea codului.')
+    } finally {
+      setLoadingCod(false)
+    }
+  }
+
   async function trimite() {
     // Validare client-side
     const erori: { email?: string; telefon?: string } = {}
@@ -172,6 +214,7 @@ export default function PaginaRezervari() {
           ora: oraSelectata,
           tip: tipRezervare,
           durata_ore: tipRezervare === 'eveniment' ? durataEveniment : 1,
+          cod_verificare: codVerificare,
         }),
       })
       const json = await res.json()
@@ -197,6 +240,7 @@ export default function PaginaRezervari() {
     setTipRezervare('normal'); setDurataEveniment(2)
     setForm({ nume: '', email: '', telefon: '', numar_persoane: 2 })
     setSucces(false); setEroare(''); setEroriForm({})
+    setCodTrimis(false); setCodVerificare(''); setEroreCod(''); setTimerCod(0)
   }
 
   // Ecran succes
@@ -708,13 +752,69 @@ export default function PaginaRezervari() {
                 </div>
               </div>
 
+              {/* ── Verificare email prin cod ── */}
+              <div className="mt-6 rounded-2xl p-4" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}>
+                <p className="text-white/50 text-xs mb-3">🔐 Verificare email — trimitem un cod de 6 cifre pe <span className="text-amber-400/80">{form.email || 'adresa ta'}</span></p>
+
+                {!codTrimis ? (
+                  // Buton trimitere cod
+                  <button
+                    onClick={trimiteCod}
+                    disabled={!form.email || loadingCod}
+                    className="w-full py-3 rounded-xl font-semibold text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#fcd34d' }}
+                  >
+                    {loadingCod ? (
+                      <>
+                        <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                        Se trimite codul...
+                      </>
+                    ) : '📨 Trimite cod de verificare'}
+                  </button>
+                ) : (
+                  // Câmp introducere cod + retrimitere
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        placeholder="_ _ _ _ _ _"
+                        value={codVerificare}
+                        onChange={e => setCodVerificare(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                        className="flex-1 rounded-xl px-4 py-3 text-white text-center text-xl font-bold tracking-[0.3em] outline-none transition-all"
+                        style={{ background: 'rgba(0,0,0,0.3)', border: `1px solid ${codVerificare.length === 6 ? 'rgba(245,158,11,0.5)' : 'rgba(255,255,255,0.1)'}` }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-white/30 text-xs">Codul expiră în 15 minute</p>
+                      <button
+                        onClick={trimiteCod}
+                        disabled={timerCod > 0 || loadingCod}
+                        className="text-xs transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                        style={{ color: timerCod > 0 ? 'rgba(255,255,255,0.3)' : '#fcd34d' }}
+                      >
+                        {timerCod > 0 ? `Retrimite în ${timerCod}s` : '↻ Trimite un cod nou'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {eroreCod && <p className="text-red-400 text-xs mt-2">{eroreCod}</p>}
+              </div>
+
               {eroare && <p className="text-red-500 text-sm mt-4">{eroare}</p>}
 
-              <div className="flex gap-3 mt-8">
+              <div className="flex gap-3 mt-6">
                 <button onClick={() => setPas(2)} className="flex-1 py-4 rounded-2xl font-semibold text-white/50 transition-all hover:bg-white/5" style={{ border: '1px solid rgba(255,255,255,0.15)' }}>
                   ← Înapoi
                 </button>
-                <button onClick={trimite} disabled={!form.nume || !form.email || !form.telefon || loading}
+                <button
+                  onClick={trimite}
+                  disabled={!form.nume || !form.email || !form.telefon || !codTrimis || codVerificare.length !== 6 || loading}
                   className="flex-1 py-4 rounded-2xl font-bold text-black transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(245,158,11,0.4)]"
                   style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)' }}>
                   {loading ? (

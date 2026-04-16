@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { salveazaRezervare, schimbaStatus, stergeRezervare, citesteRezervari } from '@/lib/rezervari'
 import { Resend } from 'resend'
+import { promises as dns } from 'dns'
+import { supabase } from '@/lib/supabase'
 
 // GET /api/rezervari — returnează toate rezervările
 export async function GET() {
@@ -83,6 +85,18 @@ function validareEmailServer(email: string): boolean {
   return /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(e) && (e.match(/@/g) || []).length === 1
 }
 
+async function verificaMxDomain(email: string): Promise<boolean> {
+  try {
+    const domeniu = email.trim().split('@')[1]
+    if (!domeniu) return false
+    const records = await dns.resolveMx(domeniu)
+    return records.length > 0
+  } catch {
+    // ENOTFOUND = domeniu inexistent, ENODATA = fără MX records
+    return false
+  }
+}
+
 function normalizeazaTelefon(telefon: string): string {
   return telefon.replace(/[\s\-().]/g, '')
 }
@@ -93,10 +107,55 @@ function validareTelefonServer(telefon: string): boolean {
   return /^\+\d{7,15}$/.test(t)
 }
 
+async function verificaCodEmail(email: string, cod: string): Promise<{ valid: boolean; eroare?: string }> {
+  const emailNorm = email.trim().toLowerCase()
+
+  const { data: rows, error } = await supabase
+    .from('coduri_verificare')
+    .select('id, cod, incercari, expirat_la, folosit')
+    .eq('email', emailNorm)
+    .eq('folosit', false)
+    .order('creat_la', { ascending: false })
+    .limit(1)
+
+  if (error || !rows || rows.length === 0) {
+    return { valid: false, eroare: 'Nu există un cod activ pentru acest email. Apasă "Trimite cod" din nou.' }
+  }
+
+  const record = rows[0]
+
+  if (new Date(record.expirat_la) < new Date()) {
+    return { valid: false, eroare: 'Codul a expirat. Apasă "Trimite cod" pentru a primi unul nou.' }
+  }
+
+  if (record.incercari >= 5) {
+    return { valid: false, eroare: 'Prea multe încercări greșite. Apasă "Trimite cod" pentru un cod nou.' }
+  }
+
+  if (record.cod !== cod.trim()) {
+    // Incrementează numărul de încercări
+    await supabase
+      .from('coduri_verificare')
+      .update({ incercari: record.incercari + 1 })
+      .eq('id', record.id)
+
+    const ramasIncercari = 4 - record.incercari
+    return { valid: false, eroare: `Cod incorect. Mai ai ${ramasIncercari} încercar${ramasIncercari === 1 ? 'e' : 'i'}.` }
+  }
+
+  // Cod corect — marchează ca folosit
+  await supabase
+    .from('coduri_verificare')
+    .update({ folosit: true })
+    .eq('id', record.id)
+
+  return { valid: true }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { nume, email, telefon, numar_persoane, data, ora, metoda_confirmare, tip, durata_ore } = body
+    const { nume, email, telefon, numar_persoane, data, ora, metoda_confirmare, tip, durata_ore, cod_verificare } = body
 
     if (!nume || !email || !telefon || !data || !ora) {
       return NextResponse.json({ eroare: 'Toate câmpurile sunt obligatorii.' }, { status: 400 })
@@ -108,6 +167,16 @@ export async function POST(req: NextRequest) {
 
     if (!validareTelefonServer(telefon)) {
       return NextResponse.json({ eroare: 'Numărul de telefon nu este valid. Trebuie să includă codul țării (ex: +44...).' }, { status: 400 })
+    }
+
+    // Verificare cod email
+    if (!cod_verificare) {
+      return NextResponse.json({ eroare: 'Codul de verificare este obligatoriu.' }, { status: 400 })
+    }
+
+    const verificare = await verificaCodEmail(email, cod_verificare)
+    if (!verificare.valid) {
+      return NextResponse.json({ eroare: verificare.eroare }, { status: 400 })
     }
 
     const rezultat = await salveazaRezervare({ nume, email, telefon, numar_persoane, data, ora, tip: tip ?? 'normal', durata_ore: durata_ore ?? 1 })
