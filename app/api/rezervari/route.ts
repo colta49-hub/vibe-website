@@ -77,16 +77,40 @@ async function trimiteConfirmareSMS(telefon: string, nume: string, data: string,
   })
 }
 
+function validareEmailServer(email: string): boolean {
+  const e = email.trim()
+  // un singur @, caractere valide înainte, domeniu cu punct + extensie minim 2 caractere
+  return /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(e) && (e.match(/@/g) || []).length === 1
+}
+
+function normalizeazaTelefon(telefon: string): string {
+  return telefon.replace(/[\s\-().]/g, '')
+}
+
+function validareTelefonServer(telefon: string): boolean {
+  const t = normalizeazaTelefon(telefon)
+  // + urmat de 7-15 cifre
+  return /^\+\d{7,15}$/.test(t)
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { nume, email, telefon, numar_persoane, data, ora, metoda_confirmare } = body
+    const { nume, email, telefon, numar_persoane, data, ora, metoda_confirmare, tip, durata_ore } = body
 
     if (!nume || !email || !telefon || !data || !ora) {
       return NextResponse.json({ eroare: 'Toate câmpurile sunt obligatorii.' }, { status: 400 })
     }
 
-    const rezultat = await salveazaRezervare({ nume, email, telefon, numar_persoane, data, ora })
+    if (!validareEmailServer(email)) {
+      return NextResponse.json({ eroare: 'Adresa de email nu este validă.' }, { status: 400 })
+    }
+
+    if (!validareTelefonServer(telefon)) {
+      return NextResponse.json({ eroare: 'Numărul de telefon nu este valid. Trebuie să includă codul țării (ex: +44...).' }, { status: 400 })
+    }
+
+    const rezultat = await salveazaRezervare({ nume, email, telefon, numar_persoane, data, ora, tip: tip ?? 'normal', durata_ore: durata_ore ?? 1 })
 
     // Trimite confirmare în funcție de preferința clientului
     try {
@@ -100,8 +124,10 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ succes: true, data: rezultat })
-  } catch {
-    return NextResponse.json({ eroare: 'Eroare la salvare. Încearcă din nou.' }, { status: 500 })
+  } catch (e: unknown) {
+    const mesaj = e instanceof Error ? e.message : 'Eroare la salvare. Încearcă din nou.'
+    const status = mesaj.includes('deja rezervată') ? 409 : 500
+    return NextResponse.json({ eroare: mesaj }, { status })
   }
 }
 

@@ -91,21 +91,21 @@ export default function HeroStarter() {
         >
           <a
             href="#menu"
-            className="px-6 py-2.5 text-sm bg-amber-600 text-white font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_30px_rgba(180,83,9,0.6)]"
+            className="flex items-center justify-center gap-2 px-7 py-3 text-sm bg-amber-600 text-white font-semibold rounded-2xl transition-all duration-300 hover:scale-105 hover:bg-amber-500 hover:shadow-[0_8px_30px_rgba(180,83,9,0.6)]"
           >
-            Vezi Meniul
+            ☕ Vezi Meniul
           </a>
           <a
-            href="#footer"
-            className="px-6 py-2.5 text-sm border-2 border-white text-white font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:shadow-[0_8px_30px_rgba(255,255,255,0.3)]"
+            href="#locatie"
+            className="flex items-center justify-center gap-2 px-7 py-3 text-sm bg-white/10 backdrop-blur-sm border border-white/50 text-white font-semibold rounded-2xl transition-all duration-300 hover:scale-105 hover:bg-white/20 hover:shadow-[0_8px_30px_rgba(255,255,255,0.2)]"
           >
-            Vizitează-ne
+            📍 Vizitează-ne
           </a>
           <a
             href="/rezervari"
-            className="px-6 py-2.5 text-sm border-2 border-amber-400 text-white font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:bg-amber-400 hover:text-black"
+            className="flex items-center justify-center gap-2 px-7 py-3 text-sm border border-amber-400/70 text-amber-300 font-semibold rounded-2xl transition-all duration-300 hover:scale-105 hover:bg-amber-400 hover:text-black hover:border-amber-400"
           >
-            Rezervă o masă
+            🗓 Rezervă o masă
           </a>
         </div>
 
