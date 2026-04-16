@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { promises as dns } from 'dns'
 import { Resend } from 'resend'
-import { supabase } from '@/lib/supabase'
+import { supabaseServer as supabase } from '@/lib/supabase-server'
 
 function validareEmailServer(email: string): boolean {
   const e = email.trim()

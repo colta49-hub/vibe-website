@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { salveazaRezervare, schimbaStatus, stergeRezervare, citesteRezervari } from '@/lib/rezervari'
 import { Resend } from 'resend'
 import { promises as dns } from 'dns'
-import { supabase } from '@/lib/supabase'
+import { supabaseServer as supabase } from '@/lib/supabase-server'
 
 // GET /api/rezervari — returnează toate rezervările
 export async function GET() {
@@ -103,8 +103,12 @@ function normalizeazaTelefon(telefon: string): string {
 
 function validareTelefonServer(telefon: string): boolean {
   const t = normalizeazaTelefon(telefon)
-  // + urmat de 7-15 cifre
-  return /^\+\d{7,15}$/.test(t)
+  if (!/^\+\d{7,15}$/.test(t)) return false
+  const cifre = t.slice(1) // fără +
+  // Respinge numere evident false
+  if (/^(\d)\1+$/.test(cifre)) return false
+  if (cifre.endsWith('1234567890') || cifre.endsWith('0123456789')) return false
+  return true
 }
 
 async function verificaCodEmail(email: string, cod: string): Promise<{ valid: boolean; eroare?: string }> {

@@ -35,7 +35,11 @@ function normalizeazaTelefon(numar: string): string {
 
 function validareTelefon(numar: string, lungimi: number[]): boolean {
   const cifre = normalizeazaTelefon(numar).replace(/\D/g, '')
-  return lungimi.includes(cifre.length)
+  if (!lungimi.includes(cifre.length)) return false
+  // Respinge numere evident false: toate cifrele identice (1111111111) sau secvență simplă (1234567890)
+  if (/^(\d)\1+$/.test(cifre)) return false
+  if (cifre === '1234567890' || cifre === '0123456789') return false
+  return true
 }
 
 // Ore program normal: 07:00–20:00
