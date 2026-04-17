@@ -3,6 +3,7 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import NavbarStarter from "@/components/NavbarStarter";
 import ChatWidget from "@/components/ChatWidget";
+import { I18nProvider } from "@/lib/i18n-context";
 
 // 🎨 TIPOGRAFIE 100% SANS-SERIF - MODERN CLEAN
 // Plus Jakarta Sans - Sans-serif modern pentru TOATE titlurile (H1-H6)
@@ -73,9 +74,11 @@ export default function RootLayout({
       <body
         className={`${plusJakarta.variable} ${inter.variable} antialiased`}
       >
-        <NavbarStarter />
-        {children}
-        <ChatWidget />
+        <I18nProvider>
+          <NavbarStarter />
+          {children}
+          <ChatWidget />
+        </I18nProvider>
       </body>
     </html>
   );
