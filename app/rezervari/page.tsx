@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import emailjs from '@emailjs/browser'
+import { useI18n } from '@/lib/i18n-context'
 
 const EMAILJS_SERVICE_ID = 'service_kjq6vo8'
 const EMAILJS_TEMPLATE_ID = 'template_rej06zm'
@@ -119,6 +120,7 @@ function esteWeekend(year: number, month: number, zi: number) {
 }
 
 export default function PaginaRezervari() {
+  const { t } = useI18n()
   const azi = getAzi()
   const maxData = addLuni(azi, 6)
 
@@ -297,58 +299,30 @@ export default function PaginaRezervari() {
 
     if (tipRezervare === 'eveniment') {
       if (esteWeekendZi) {
-        return {
-          icon: '✨',
-          titlu: 'Un weekend de neuitat',
-          mesaj: 'Ai ales Vibe Caffè pentru un moment special — iar noi vom face tot posibilul să depășim orice așteptare. Echipa noastră va fi pregătită pentru tine.',
-        }
+        return { icon: '✨', titluKey: 'msg1Titlu', mesajKey: 'msg1Text' }
       }
-      return {
-        icon: '🎉',
-        titlu: 'Evenimentul tău, grija noastră',
-        mesaj: 'Ai încredere în noi pentru acest moment important. Vom pregăti totul cu atenție și drag, ca seara ta să fie exact cum ai visat-o.',
-      }
+      return { icon: '🎉', titluKey: 'msg2Titlu', mesajKey: 'msg2Text' }
     }
 
     // Masă normală
     if (ora >= 7 && ora < 11) {
-      return {
-        icon: '🌅',
-        titlu: 'Dimineața începe frumos',
-        mesaj: 'Ai ales cel mai bun mod de a-ți începe ziua. Te așteptăm cu o cafea proaspăt preparată și aroma care îți va ridica moralul din primul sorb.',
-      }
+      return { icon: '🌅', titluKey: 'msg3Titlu', mesajKey: 'msg3Text' }
     }
     if (ora >= 11 && ora < 14) {
-      return {
-        icon: '☀️',
-        titlu: 'O pauză bine meritată',
-        mesaj: 'Miezul zilei e mai dulce cu o cafea bună și o atmosferă caldă. Din sute de locuri ai ales să fii alături de noi — și asta înseamnă enorm.',
-      }
+      return { icon: '☀️', titluKey: 'msg4Titlu', mesajKey: 'msg4Text' }
     }
     if (ora >= 14 && ora < 17) {
-      return {
-        icon: '☕',
-        titlu: 'Afternooni la Vibe',
-        mesaj: 'După-amiaza e momentul perfect pentru o cafea de specialty și o conversație frumoasă. Te așteptăm cu drag și cu cea mai bună cafea din Crawley.',
-      }
+      return { icon: '☕', titluKey: 'msg5Titlu', mesajKey: 'msg5Text' }
     }
     if (esteWeekendZi) {
-      return {
-        icon: '🌆',
-        titlu: 'Weekend perfect ales',
-        mesaj: 'Serile de weekend capătă altă culoare la Vibe Caffè. Relaxează-te, savurează și lasă-te purtat de atmosfera noastră unică.',
-      }
+      return { icon: '🌆', titluKey: 'msg6Titlu', mesajKey: 'msg6Text' }
     }
-    return {
-      icon: '🌙',
-      titlu: 'Seara e mai caldă la Vibe',
-      mesaj: 'Ai ales să închei ziua cu noi — și nu puteam fi mai fericiți. O cafea bună și un spațiu primitor te așteaptă după o zi lungă.',
-    }
+    return { icon: '🌙', titluKey: 'msg7Titlu', mesajKey: 'msg7Text' }
   }
 
   // Ecran succes
   if (succes) {
-    const { icon, titlu, mesaj } = getMesajPersonalizat()
+    const { icon, titluKey, mesajKey } = getMesajPersonalizat()
     return (
       <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(160deg, #2c1a0e 0%, #3d2410 50%, #1c1008 100%)' }}>
         {/* Blur orbs fundal */}
@@ -361,24 +335,24 @@ export default function PaginaRezervari() {
             {icon}
           </div>
 
-          <h2 className="text-4xl font-bold text-white mb-2">Ne vedem curând,</h2>
+          <h2 className="text-4xl font-bold text-white mb-2">{t('rezervari', 'nevedemcurand')}</h2>
           <h2 className="text-4xl font-bold mb-1" style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             {form.nume}!
           </h2>
-          <p className="text-white/50 text-sm mb-5 font-medium tracking-wide uppercase">{titlu}</p>
+          <p className="text-white/50 text-sm mb-5 font-medium tracking-wide uppercase">{t('rezervari', titluKey)}</p>
 
           {/* Card detalii */}
           <div className="rounded-2xl p-5 mb-5 text-left" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(245,158,11,0.2)' }}>
             <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-              <span className="text-white/40 text-sm">Data</span>
+              <span className="text-white/40 text-sm">{t('rezervari', 'data')}</span>
               <span className="text-amber-400 font-bold">{formatDataRo(dataSelectata)}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-              <span className="text-white/40 text-sm">Ora</span>
+              <span className="text-white/40 text-sm">{t('rezervari', 'ora')}</span>
               <span className="text-amber-400 font-bold">{oraSelectata}</span>
             </div>
             <div className="flex justify-between items-center py-2">
-              <span className="text-white/40 text-sm">Confirmare la</span>
+              <span className="text-white/40 text-sm">{t('rezervari', 'confirmareEmail')}</span>
               <span className="text-white/60 text-sm">{form.email}</span>
             </div>
           </div>
@@ -386,18 +360,18 @@ export default function PaginaRezervari() {
           {/* Mesaj emoțional */}
           <div className="rounded-2xl p-5 mb-6" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)' }}>
             <p className="text-white/70 text-sm leading-relaxed">
-              {mesaj}
+              {t('rezervari', mesajKey)}
             </p>
             <p className="text-amber-400/80 text-xs mt-3 font-medium">
-              — Echipa Vibe Caffè, Crawley
+              — {t('rezervari', 'teiAsteaptam')}
             </p>
           </div>
 
           <button onClick={rezervareNoua} className="w-full py-4 font-bold rounded-2xl text-black transition-all duration-300 hover:opacity-90 hover:scale-[1.02]" style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)' }}>
-            Fă o rezervare nouă
+            {t('rezervari', 'rezervareNoua')}
           </button>
           <a href="/" className="block w-full py-4 font-semibold rounded-2xl text-center mt-3 transition-all duration-300 hover:bg-white/10" style={{ border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.6)' }}>
-            ← Înapoi la pagina principală
+            {t('rezervari', 'inapoiPrincipal')}
           </a>
         </div>
 
@@ -447,10 +421,10 @@ export default function PaginaRezervari() {
           {/* Header */}
           <div className="text-center mb-10">
             <a href="/" className="inline-flex items-center gap-2 text-xs text-white/40 hover:text-amber-400 transition-colors mb-4">
-              ← Pagina principală
+              {t('rezervari', 'inapoiAcasa')}
             </a>
             <p className="text-xs tracking-[0.3em] uppercase font-semibold mb-2 text-amber-400">Vibe Caffè</p>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Rezervă o masă</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">{t('rezervari', 'titlu')}</h1>
             <p className="text-white/40 text-sm">3 pași simpli</p>
           </div>
 
@@ -467,8 +441,8 @@ export default function PaginaRezervari() {
               }}
             >
               <span className="text-xl">☕</span>
-              <span>Rezervare masă</span>
-              <span className="text-[10px] opacity-70 font-normal">07:00–20:00</span>
+              <span>{t('rezervari', 'rezervareMasa')}</span>
+              <span className="text-[10px] opacity-70 font-normal">{t('rezervari', 'programNormal')}</span>
             </button>
             <button
               onClick={() => { setTipRezervare('eveniment'); setOraSelectata('') }}
@@ -481,15 +455,15 @@ export default function PaginaRezervari() {
               }}
             >
               <span className="text-xl">🎉</span>
-              <span>Eveniment privat</span>
-              <span className="text-[10px] opacity-70 font-normal">orice oră + durată</span>
+              <span>{t('rezervari', 'evenimentPrivat')}</span>
+              <span className="text-[10px] opacity-70 font-normal">{t('rezervari', 'oriceOra')}</span>
             </button>
           </div>
 
           {/* Selector durată — apare doar la eveniment */}
           {tipRezervare === 'eveniment' && (
             <div className="mb-6 rounded-2xl p-4" style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(167,139,250,0.2)' }}>
-              <p className="text-xs text-purple-300 mb-3 font-semibold tracking-wider uppercase">Durata evenimentului</p>
+              <p className="text-xs text-purple-300 mb-3 font-semibold tracking-wider uppercase">{t('rezervari', 'durataPas')}</p>
               <div className="flex flex-wrap gap-2">
                 {DURATE_EVENIMENT.map(d => (
                   <button key={d} onClick={() => { setDurataEveniment(d); setOraSelectata('') }}
@@ -505,7 +479,7 @@ export default function PaginaRezervari() {
                 ))}
               </div>
               <p className="text-purple-300/60 text-[11px] mt-3">
-                + 30 min curățenie rezervate automat după eveniment
+                {t('rezervari', 'curatenie')}
               </p>
             </div>
           )}
@@ -676,11 +650,11 @@ export default function PaginaRezervari() {
                         className="px-6 py-2.5 font-bold rounded-2xl text-black text-sm transition-all hover:scale-105 hover:shadow-[0_6px_20px_rgba(245,158,11,0.4)]"
                         style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)' }}
                       >
-                        Continuă →
+                        {t('rezervari', 'continua')}
                       </button>
                     </div>
                   ) : (
-                    <p className="text-center text-sm font-semibold py-1" style={{ color: 'rgba(255,255,255,0.55)', letterSpacing: '0.1em' }}>← Selectează o zi din calendar →</p>
+                    <p className="text-center text-sm font-semibold py-1" style={{ color: 'rgba(255,255,255,0.55)', letterSpacing: '0.1em' }}>{t('rezervari', 'selecteazaZi')}</p>
                   )}
                 </div>
               </div>
@@ -698,10 +672,10 @@ export default function PaginaRezervari() {
 
             return (
             <div className="rounded-3xl p-6 border" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', borderColor }}>
-              <h2 className="text-xl font-bold text-white mb-1">Alege ora {tipRezervare === 'eveniment' ? 'de start' : ''}</h2>
+              <h2 className="text-xl font-bold text-white mb-1">{t('rezervari', 'alegeOra')} {tipRezervare === 'eveniment' ? t('rezervari', 'deStart') : ''}</h2>
               <p className="text-xs mb-1" style={{ color: accentColor }}>{formatDataRo(dataSelectata)}</p>
               {tipRezervare === 'eveniment' && (
-                <p className="text-xs mb-4 text-white/40">Durată: {formateazaDurata(durataEveniment)} + 30 min curățenie</p>
+                <p className="text-xs mb-4 text-white/40">{t('rezervari', 'durata')} {formateazaDurata(durataEveniment)} + 30 min</p>
               )}
               {tipRezervare === 'normal' && <div className="mb-4" />}
               <div className="grid grid-cols-4 gap-2">
@@ -727,7 +701,7 @@ export default function PaginaRezervari() {
               </div>
               <div className="flex gap-3 mt-6">
                 <button onClick={() => setPas(1)} className="flex-1 py-4 rounded-2xl font-semibold text-white/50 transition-all hover:bg-white/5" style={{ border: '1px solid rgba(255,255,255,0.15)' }}>
-                  ← Înapoi
+                  {t('rezervari', 'inapoi')}
                 </button>
                 <button onClick={() => setPas(3)} disabled={!oraSelectata}
                   className="flex-1 py-4 rounded-2xl font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:scale-[1.02]"
@@ -735,7 +709,7 @@ export default function PaginaRezervari() {
                     background: accentGrad,
                     color: tipRezervare === 'eveniment' ? '#fff' : '#1c1008',
                   }}>
-                  Continuă →
+                  {t('rezervari', 'continua')}
                 </button>
               </div>
             </div>
@@ -745,17 +719,17 @@ export default function PaginaRezervari() {
           {/* PASUL 3: Detalii */}
           {pas === 3 && (
             <div className="rounded-3xl p-6 border" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', borderColor: 'rgba(245,158,11,0.15)' }}>
-              <h2 className="text-xl font-bold text-white mb-1">Detaliile tale</h2>
-              <p className="text-xs mb-6 text-amber-400">{formatDataRo(dataSelectata)} la {oraSelectata}</p>
+              <h2 className="text-xl font-bold text-white mb-1">{t('rezervari', 'detaliile')}</h2>
+              <p className="text-xs mb-6 text-amber-400">{formatDataRo(dataSelectata)} · {oraSelectata}</p>
 
               <div className="space-y-4">
 
                 {/* Nume — max 60 caractere, doar litere+spațiu */}
                 <div>
                   <label className="text-white/50 text-xs mb-1.5 block">
-                    Nume complet * <span className="text-white/20 font-normal">({form.nume.length}/60)</span>
+                    {t('rezervari', 'numeComplet')} * <span className="text-white/20 font-normal">({form.nume.length}/60)</span>
                   </label>
-                  <input type="text" placeholder="Ex: Maria Ionescu"
+                  <input type="text" placeholder={t('rezervari', 'numeEx')}
                     value={form.nume}
                     onChange={(e) => {
                       // Permite litere (inclusiv diacritice), spațiu, cratimă — fără cifre sau simboluri
@@ -771,8 +745,8 @@ export default function PaginaRezervari() {
 
                 {/* Email — validare caracter cu caracter */}
                 <div>
-                  <label className="text-white/50 text-xs mb-1.5 block">Email *</label>
-                  <input type="email" placeholder="Ex: maria@gmail.com"
+                  <label className="text-white/50 text-xs mb-1.5 block">{t('rezervari', 'email')} *</label>
+                  <input type="email" placeholder={t('rezervari', 'emailEx')}
                     value={form.email}
                     onChange={(e) => {
                       // Blochează spații și @ duplicate
@@ -805,7 +779,7 @@ export default function PaginaRezervari() {
 
                 {/* Telefon cu selector cod țară */}
                 <div>
-                  <label className="text-white/50 text-xs mb-1.5 block">Telefon *</label>
+                  <label className="text-white/50 text-xs mb-1.5 block">{t('rezervari', 'telefon')} *</label>
                   <div className="flex gap-2">
 
                     {/* Dropdown cod țară */}
@@ -875,19 +849,19 @@ export default function PaginaRezervari() {
                   {eroriForm.telefon && <p className="text-red-400 text-xs mt-1">⚠ {eroriForm.telefon}</p>}
                   {!eroriForm.telefon && (
                     <p className="text-white/30 text-[11px] mt-1">
-                      {codTara.tara}: exact {codTara.lungime.join(' sau ')} cifre
-                      {form.telefon.length > 0 && ` · ai introdus ${form.telefon.length}`}
+                      {codTara.tara}: {codTara.lungime.join('/')} {t('rezervari', 'telefon').toLowerCase()}
+                      {form.telefon.length > 0 && ` · ${form.telefon.length}`}
                     </p>
                   )}
                 </div>
 
                 {/* Confirmare email */}
                 <div>
-                  <p className="text-white/30 text-[11px]">✉️ Confirmarea se trimite pe email la: <span className="text-amber-400/60">{form.email || 'adresa ta de email'}</span></p>
+                  <p className="text-white/30 text-[11px]">{t('rezervari', 'confirmareTrimisLa')} <span className="text-amber-400/60">{form.email || t('rezervari', 'adresaTa')}</span></p>
                 </div>
 
                 <div>
-                  <label className="text-white/50 text-xs mb-1.5 block">Număr persoane (1–12)</label>
+                  <label className="text-white/50 text-xs mb-1.5 block">{t('rezervari', 'numarPersoane')}</label>
                   <div className="flex items-center gap-4">
                     <button onClick={() => setForm({ ...form, numar_persoane: Math.max(1, form.numar_persoane - 1) })}
                       className="w-12 h-12 rounded-xl text-2xl font-bold text-white transition-all hover:scale-110"
@@ -902,7 +876,7 @@ export default function PaginaRezervari() {
 
               {/* ── Verificare email prin cod ── */}
               <div className="mt-6 rounded-2xl p-4" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}>
-                <p className="text-white/50 text-xs mb-3">🔐 Verificare email — trimitem un cod de 6 cifre pe <span className="text-amber-400/80">{form.email || 'adresa ta'}</span></p>
+                <p className="text-white/50 text-xs mb-3">{t('rezervari', 'verificareEmail')} <span className="text-amber-400/80">{form.email || t('rezervari', 'adresaTa')}</span></p>
 
                 {!codTrimis ? (
                   // Buton trimitere cod
@@ -918,9 +892,9 @@ export default function PaginaRezervari() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                         </svg>
-                        Se trimite codul...
+                        {t('rezervari', 'seTrimite')}
                       </>
-                    ) : '📨 Trimite cod de verificare'}
+                    ) : t('rezervari', 'trimiteCodul')}
                   </button>
                 ) : (
                   // Câmp introducere cod + retrimitere
@@ -938,14 +912,14 @@ export default function PaginaRezervari() {
                       />
                     </div>
                     <div className="flex items-center justify-between">
-                      <p className="text-white/30 text-xs">Codul expiră în 15 minute</p>
+                      <p className="text-white/30 text-xs">{t('rezervari', 'codExpira')}</p>
                       <button
                         onClick={trimiteCod}
                         disabled={timerCod > 0 || loadingCod}
                         className="text-xs transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                         style={{ color: timerCod > 0 ? 'rgba(255,255,255,0.3)' : '#fcd34d' }}
                       >
-                        {timerCod > 0 ? `Retrimite în ${timerCod}s` : '↻ Trimite un cod nou'}
+                        {timerCod > 0 ? t('rezervari', 'retrimiteTimer').replace('{sec}', String(timerCod)) : t('rezervari', 'retrimite')}
                       </button>
                     </div>
                   </div>
@@ -958,7 +932,7 @@ export default function PaginaRezervari() {
 
               <div className="flex gap-3 mt-6">
                 <button onClick={() => setPas(2)} className="flex-1 py-4 rounded-2xl font-semibold text-white/50 transition-all hover:bg-white/5" style={{ border: '1px solid rgba(255,255,255,0.15)' }}>
-                  ← Înapoi
+                  {t('rezervari', 'inapoi')}
                 </button>
                 <button
                   onClick={trimite}
@@ -971,9 +945,9 @@ export default function PaginaRezervari() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                       </svg>
-                      Se trimite...
+                      {t('rezervari', 'seProceseaza')}
                     </>
-                  ) : 'Rezervă acum ✦'}
+                  ) : t('rezervari', 'rezervaAcum')}
                 </button>
               </div>
             </div>

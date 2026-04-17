@@ -5,46 +5,57 @@
 'use client';
 
 import { useState } from 'react';
+import { useI18n } from '@/lib/i18n-context';
 
-const menuData = {
+type Category = 'Espresso' | 'Specialty' | 'Cold Brew' | 'Patiserie';
+
+interface MenuItem {
+  key: string;
+  price: number;
+  image: string;
+  translate?: boolean;
+}
+
+const menuDataStatic: Record<Category, MenuItem[]> = {
   Espresso: [
-    { name: 'Espresso', price: 2.5, image: 'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Doppio', price: 3, image: 'https://images.pexels.com/photos/1233528/pexels-photo-1233528.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Ristretto', price: 2.5, image: 'https://images.pexels.com/photos/350478/pexels-photo-350478.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Lungo', price: 2.8, image: '/lungo.jpeg' },
-    { name: 'Macchiato', price: 3, image: 'https://images.pexels.com/photos/1193335/pexels-photo-1193335.jpeg?w=400&auto=compress&cs=tinysrgb' },
-    { name: 'Cortado', price: 3.2, image: '/cortado.jpeg' },
+    { key: 'Espresso', price: 2.5, image: 'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?w=400&auto=compress&cs=tinysrgb' },
+    { key: 'Doppio', price: 3, image: 'https://images.pexels.com/photos/1233528/pexels-photo-1233528.jpeg?w=400&auto=compress&cs=tinysrgb' },
+    { key: 'Ristretto', price: 2.5, image: 'https://images.pexels.com/photos/350478/pexels-photo-350478.jpeg?w=400&auto=compress&cs=tinysrgb' },
+    { key: 'Lungo', price: 2.8, image: '/lungo.jpeg' },
+    { key: 'Macchiato', price: 3, image: 'https://images.pexels.com/photos/1193335/pexels-photo-1193335.jpeg?w=400&auto=compress&cs=tinysrgb' },
+    { key: 'Cortado', price: 3.2, image: '/cortado.jpeg' },
   ],
   Specialty: [
-    { name: 'Flat White', price: 4, image: '/flat-white.webp' },
-    { name: 'Cappuccino', price: 3.5, image: '/cappuccino.jpeg' },
-    { name: 'Latte', price: 3.8, image: '/latte.jpeg' },
-    { name: 'Oat Latte', price: 4.5, image: '/oat-latte.jpeg' },
-    { name: 'Matcha Latte', price: 5, image: '/matcha-latte.jpeg' },
-    { name: 'Turmeric Latte', price: 5, image: '/turmeric-latte.jpeg' },
+    { key: 'Flat White', price: 4, image: '/flat-white.webp' },
+    { key: 'Cappuccino', price: 3.5, image: '/cappuccino.jpeg' },
+    { key: 'Latte', price: 3.8, image: '/latte.jpeg' },
+    { key: 'Oat Latte', price: 4.5, image: '/oat-latte.jpeg' },
+    { key: 'Matcha Latte', price: 5, image: '/matcha-latte.jpeg' },
+    { key: 'Turmeric Latte', price: 5, image: '/turmeric-latte.jpeg' },
   ],
   'Cold Brew': [
-    { name: 'Cold Brew Classic', price: 4.5, image: '/cold-brew-classic2.jpeg' },
-    { name: 'Cold Brew cu Lapte', price: 5, image: '/cold-brew-lapte.jpeg' },
-    { name: 'Nitro Cold Brew', price: 5.5, image: '/nitro-cold-brew.jpeg' },
-    { name: 'Cold Brew Tonic', price: 5.2, image: '/tonic.jpeg' },
-    { name: 'Iced Latte', price: 4.8, image: '/iced-latte.jpeg' },
-    { name: 'Iced Matcha', price: 5.2, image: '/iced-matcha.jpeg' },
+    { key: 'Cold Brew Classic', price: 4.5, image: '/cold-brew-classic2.jpeg' },
+    { key: 'coldBrewLapte', price: 5, image: '/cold-brew-lapte.jpeg', translate: true },
+    { key: 'Nitro Cold Brew', price: 5.5, image: '/nitro-cold-brew.jpeg' },
+    { key: 'Cold Brew Tonic', price: 5.2, image: '/tonic.jpeg' },
+    { key: 'Iced Latte', price: 4.8, image: '/iced-latte.jpeg' },
+    { key: 'Iced Matcha', price: 5.2, image: '/iced-matcha.jpeg' },
   ],
   Patiserie: [
-    { name: 'Croissant cu Unt', price: 3.5, image: '/croissant.jpeg' },
-    { name: 'Pain au Chocolat', price: 4, image: '/pain-au-chocolat.jpeg' },
-    { name: 'Brioche', price: 3.8, image: '/brioche.jpeg' },
-    { name: 'Ecler cu Vanilie', price: 4.5, image: '/ecler.jpeg' },
-    { name: 'Tartă cu Fructe', price: 5, image: '/tarta-fructe.jpeg' },
-    { name: 'Cheesecake', price: 5.5, image: '/cheesecake.webp' },
+    { key: 'croissant', price: 3.5, image: '/croissant.jpeg', translate: true },
+    { key: 'painChocolat', price: 4, image: '/pain-au-chocolat.jpeg', translate: true },
+    { key: 'brioche', price: 3.8, image: '/brioche.jpeg', translate: true },
+    { key: 'ecler', price: 4.5, image: '/ecler.jpeg', translate: true },
+    { key: 'tarta', price: 5, image: '/tarta-fructe.jpeg', translate: true },
+    { key: 'cheesecake', price: 5.5, image: '/cheesecake.webp', translate: true },
   ],
 };
 
-const categories = ['Espresso', 'Specialty', 'Cold Brew', 'Patiserie'] as const;
-type Category = typeof categories[number];
+const categoryKeys: Category[] = ['Espresso', 'Specialty', 'Cold Brew', 'Patiserie'];
+const catI18nKeys = ['cat1', 'cat2', 'cat3', 'cat4'];
 
 export default function MenuStarter() {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<Category>('Espresso');
 
   return (
@@ -66,19 +77,19 @@ export default function MenuStarter() {
           <p className="relative text-amber-600 text-xs tracking-[0.3em] uppercase font-semibold mb-4"
             style={{ textShadow: '0 0 20px rgba(245,158,11,0.5)' }}
           >
-            Selecția noastră
+            {t('meniu', 'selectia')}
           </p>
           <h2 className="relative text-5xl md:text-6xl font-bold text-gray-900"
             style={{ textShadow: '0 2px 20px rgba(180,83,9,0.15), 0 4px 40px rgba(245,158,11,0.1)' }}
           >
-            Meniul Nostru
+            {t('meniu', 'titlu')}
           </h2>
           <div className="w-12 h-px bg-amber-400 mx-auto mt-6" />
         </div>
 
         {/* TAB-URI — 3D cu shadow */}
         <div className="flex justify-center gap-3 flex-wrap mb-12">
-          {categories.map((cat) => (
+          {categoryKeys.map((cat, idx) => (
             <button
               key={cat}
               onClick={() => setActiveTab(cat)}
@@ -98,48 +109,51 @@ export default function MenuStarter() {
                     }
               }
             >
-              {cat}
+              {t('meniu', catI18nKeys[idx])}
             </button>
           ))}
         </div>
 
         {/* GRID PRODUSE — card cu imagine + info jos */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-5 mt-10">
-          {menuData[activeTab].map((item) => (
-            <div
-              key={item.name}
-              className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
-            >
-              {/* Imagine */}
-              <div className="h-44 overflow-hidden">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                  }}
-                />
-              </div>
+          {menuDataStatic[activeTab].map((item) => {
+            const displayName = item.translate ? t('meniu', item.key) : item.key;
+            return (
+              <div
+                key={item.key}
+                className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+              >
+                {/* Imagine */}
+                <div className="h-44 overflow-hidden">
+                  <img
+                    src={item.image}
+                    alt={displayName}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
+                </div>
 
-              {/* Info */}
-              <div className="px-4 py-3 flex justify-between items-center border-t border-gray-50">
-                <span
-                  className="font-bold text-base tracking-wide"
-                  style={{
-                    background: 'linear-gradient(90deg, #1c1c1c 0%, #b45309 50%, #1c1c1c 100%)',
-                    backgroundSize: '200% auto',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                    animation: 'shimmer 3s linear infinite',
-                  }}
-                >{item.name}</span>
-                <span className="text-amber-600 font-bold text-sm">£{item.price.toFixed(2)}</span>
+                {/* Info */}
+                <div className="px-4 py-3 flex justify-between items-center border-t border-gray-50">
+                  <span
+                    className="font-bold text-base tracking-wide"
+                    style={{
+                      background: 'linear-gradient(90deg, #1c1c1c 0%, #b45309 50%, #1c1c1c 100%)',
+                      backgroundSize: '200% auto',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                      animation: 'shimmer 3s linear infinite',
+                    }}
+                  >{displayName}</span>
+                  <span className="text-amber-600 font-bold text-sm">£{item.price.toFixed(2)}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
       </div>

@@ -1,33 +1,28 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useI18n } from '@/lib/i18n-context';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
 
-const QUICK_REPLIES_INITIAL = ['Vezi meniu', 'Recomandări', 'Rezervări', 'Program'];
-
-const CONTEXTUAL_REPLIES: Record<string, string[]> = {
-  meniu: ['Opțiuni vegane', 'Deserturi', 'Cafea rece'],
-  rezerv: ['Fă o rezervare', 'Program'],
-  vegan: ['Opțiuni vegane', 'Deserturi'],
-  cafea: ['Espresso', 'Cafea rece', 'Specialty'],
-};
-
 export default function ChatWidget() {
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
-  const [quickReplies, setQuickReplies] = useState<string[]>(QUICK_REPLIES_INITIAL);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      content: 'Bună! 👋 Sunt Barista Bot, asistentul tău de la Vibe Caffè! Te pot ajuta cu meniul, rezervările sau orice întrebare despre cafenea noastră. Cu ce te pot ajuta azi? ☕',
-    },
-  ]);
+  const [quickReplies, setQuickReplies] = useState<string[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Inițializăm mesajul de salut și quick replies când t() e disponibil
+  useEffect(() => {
+    setMessages([{ role: 'assistant', content: t('chat', 'salut') }]);
+    setQuickReplies([t('chat', 'qr1'), t('chat', 'qr2'), t('chat', 'qr3'), t('chat', 'qr4')]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -37,8 +32,17 @@ export default function ChatWidget() {
 
   const getContextualReplies = (text: string): string[] => {
     const lower = text.toLowerCase();
-    for (const [keyword, replies] of Object.entries(CONTEXTUAL_REPLIES)) {
-      if (lower.includes(keyword)) return replies;
+    if (lower.includes('meniu') || lower.includes('menu')) {
+      return [t('chat', 'ctx_meniu1'), t('chat', 'ctx_meniu2'), t('chat', 'ctx_meniu3')];
+    }
+    if (lower.includes('rezerv') || lower.includes('book')) {
+      return [t('chat', 'ctx_rezerv1'), t('chat', 'ctx_rezerv2')];
+    }
+    if (lower.includes('vegan')) {
+      return [t('chat', 'ctx_vegan1'), t('chat', 'ctx_vegan2')];
+    }
+    if (lower.includes('cafea') || lower.includes('coffee')) {
+      return [t('chat', 'ctx_cafea1'), t('chat', 'ctx_cafea2'), t('chat', 'ctx_cafea3')];
     }
     return [];
   };
@@ -66,7 +70,7 @@ export default function ChatWidget() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: 'Ups, ceva n-a mers 😅 Încearcă din nou!' },
+        { role: 'assistant', content: t('chat', 'eroare') },
       ]);
     } finally {
       setLoading(false);
@@ -97,7 +101,7 @@ export default function ChatWidget() {
             <div className="text-2xl">☕</div>
             <div>
               <p className="text-white font-bold text-sm tracking-wide" style={{ fontFamily: 'var(--font-heading)' }}>Barista Bot</p>
-              <p className="text-white/80 text-xs">Vibe Caffè · Online</p>
+              <p className="text-white/80 text-xs">{t('chat', 'online')}</p>
             </div>
             <button
               onClick={() => setIsOpen(false)}
@@ -200,7 +204,7 @@ export default function ChatWidget() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Scrie un mesaj..."
+              placeholder={t('chat', 'placeholder')}
               className="flex-1 text-sm outline-none bg-transparent text-gray-800 placeholder-gray-400"
             />
             <button
@@ -228,7 +232,7 @@ export default function ChatWidget() {
             boxShadow: '0 4px 15px rgba(20,184,166,0.3)',
           }}
         >
-          Bună! Hai să discutăm ☕
+          {t('chat', 'tooltip')}
           <div
             className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 rotate-45"
             style={{ background: '#0D9488' }}

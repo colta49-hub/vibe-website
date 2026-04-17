@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import roJson from '@/messages/ro.json'
 
 export const LIMBI = [
   { cod: 'ro', nume: 'Română',    flag: '🇷🇴' },
@@ -36,7 +37,9 @@ interface I18nContextType {
 
 const I18nContext = createContext<I18nContextType | null>(null)
 
-const cache: Record<string, Translations> = {}
+const cache: Record<string, Translations> = {
+  ro: roJson as Translations,
+}
 
 async function incarcaTraduceri(cod: string): Promise<Translations> {
   if (cache[cod]) return cache[cod]
@@ -52,7 +55,7 @@ async function incarcaTraduceri(cod: string): Promise<Translations> {
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [limba, setLimbaState] = useState('ro')
-  const [traduceri, setTraduceri] = useState<Translations>({})
+  const [traduceri, setTraduceri] = useState<Translations>(roJson as Translations)
 
   useEffect(() => {
     const saved = localStorage.getItem('vibe-limba') || 'ro'
