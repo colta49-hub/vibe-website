@@ -1,24 +1,45 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import emailjs from '@emailjs/browser'
+
+const EMAILJS_SERVICE_ID = 'service_kjq6vo8'
+const EMAILJS_TEMPLATE_ID = 'template_rej06zm'
+const EMAILJS_PUBLIC_KEY = 'HqVs4Go3vAMstRDmm'
 
 // ── Coduri de țară ──────────────────────────────────────────────────────────
 const CODURI_TARA = [
-  { cod: '+44', tara: 'UK', flag: '🇬🇧', lungime: [10, 11] },
-  { cod: '+373', tara: 'Moldova', flag: '🇲🇩', lungime: [8] },
-  { cod: '+40', tara: 'România', flag: '🇷🇴', lungime: [10] },
-  { cod: '+1', tara: 'USA/CAN', flag: '🇺🇸', lungime: [10] },
-  { cod: '+49', tara: 'Germania', flag: '🇩🇪', lungime: [10, 11] },
-  { cod: '+33', tara: 'Franța', flag: '🇫🇷', lungime: [9] },
-  { cod: '+39', tara: 'Italia', flag: '🇮🇹', lungime: [9, 10] },
-  { cod: '+34', tara: 'Spania', flag: '🇪🇸', lungime: [9] },
-  { cod: '+31', tara: 'Olanda', flag: '🇳🇱', lungime: [9] },
-  { cod: '+32', tara: 'Belgia', flag: '🇧🇪', lungime: [8, 9] },
-  { cod: '+48', tara: 'Polonia', flag: '🇵🇱', lungime: [9] },
-  { cod: '+380', tara: 'Ucraina', flag: '🇺🇦', lungime: [9] },
-  { cod: '+7', tara: 'Rusia', flag: '🇷🇺', lungime: [10] },
-  { cod: '+90', tara: 'Turcia', flag: '🇹🇷', lungime: [10] },
-  { cod: '+971', tara: 'UAE', flag: '🇦🇪', lungime: [9] },
+  // Prefixele acceptă și forma fără 0 față (standard internațional cu cod de țară)
+  { cod: '+44', tara: 'UK', flag: '🇬🇧', lungime: [9, 10],      prefix: /^(0?[1-9][0-9])/ },
+  // UK: 07xxx mobil, 01/02/03/08/09 fix — fără 0: 7xxx, 1x, 2x etc.
+  { cod: '+40', tara: 'România', flag: '🇷🇴', lungime: [9],      prefix: /^(7[0-8]|[23][0-9])/ },
+  // RO: 07x mobil (fără 0: 7x), 02x/03x fix (fără 0: 2x/3x)
+  { cod: '+373', tara: 'Moldova', flag: '🇲🇩', lungime: [7, 8],  prefix: /^[2-9]/ },
+  // MD: 022 fix (fără 0: 22→7 cifre), 06x/07x mobil (fără 0: 6x/7x→7 cifre)
+  { cod: '+1', tara: 'USA/CAN', flag: '🇺🇸', lungime: [10],      prefix: /^[2-9][0-9]{2}[2-9]/ },
+  // US/CA: fără 0 față, area code [2-9]
+  { cod: '+49', tara: 'Germania', flag: '🇩🇪', lungime: [9, 10, 11], prefix: /^(1[5-7][0-9]|[2-9][0-9])/ },
+  // DE: 015x/016x/017x mobil (fără 0: 15x/16x/17x), fix 02x+ (fără 0: 2x+)
+  { cod: '+33', tara: 'Franța', flag: '🇫🇷', lungime: [9],       prefix: /^[1-9]/ },
+  // FR: 06/07 mobil, 01-05 fix — fără 0: 1-9
+  { cod: '+39', tara: 'Italia', flag: '🇮🇹', lungime: [9, 10],   prefix: /^(0[0-9]|3[0-9])/ },
+  // IT: Italia păstrează 0 chiar și internațional (excepție), mobil 3x
+  { cod: '+34', tara: 'Spania', flag: '🇪🇸', lungime: [9],       prefix: /^[6-9]/ },
+  // ES: 6x/7x mobil, 8x/9x fix — fără 0
+  { cod: '+31', tara: 'Olanda', flag: '🇳🇱', lungime: [9],       prefix: /^(0?6[0-9]|[1-9][0-9])/ },
+  // NL: 06 mobil (fără 0: 6), fix 01x-09x (fără 0: 1x-9x)
+  { cod: '+32', tara: 'Belgia', flag: '🇧🇪', lungime: [8, 9],    prefix: /^(0?4[0-9]|[1-9][0-9])/ },
+  // BE: 04x mobil (fără 0: 4x), fix 0x (fără 0: 1x-9x)
+  { cod: '+48', tara: 'Polonia', flag: '🇵🇱', lungime: [9],      prefix: /^[4-8][0-9]/ },
+  // PL: fără 0 față, mobil 4x-8x
+  { cod: '+380', tara: 'Ucraina', flag: '🇺🇦', lungime: [9],     prefix: /^[3-9][0-9]/ },
+  // UA: fără 0 față, 3x-9x
+  { cod: '+7', tara: 'Rusia', flag: '🇷🇺', lungime: [10],        prefix: /^[3-9][0-9]/ },
+  // RU: fără 0 față
+  { cod: '+90', tara: 'Turcia', flag: '🇹🇷', lungime: [10],      prefix: /^(5[0-9][0-9]|[2-4][0-9][0-9])/ },
+  // TR: 5xx mobil, 2xx-4xx fix — fără 0
+  { cod: '+971', tara: 'UAE', flag: '🇦🇪', lungime: [7, 8, 9],   prefix: /^(5[024568]|[2-4][0-9])/ },
+  // AE: 50/52/54/55/56/58 mobil, 2x-4x fix — fără 0
 ]
 
 function validareEmail(email: string): boolean {
@@ -33,12 +54,19 @@ function normalizeazaTelefon(numar: string): string {
   return numar.replace(/[\s\-().]/g, '')
 }
 
-function validareTelefon(numar: string, lungimi: number[]): boolean {
+function validareTelefon(numar: string, lungimi: number[], prefix?: RegExp): boolean {
   const cifre = normalizeazaTelefon(numar).replace(/\D/g, '')
   if (!lungimi.includes(cifre.length)) return false
-  // Respinge numere evident false: toate cifrele identice (1111111111) sau secvență simplă (1234567890)
+  // Respinge toate cifrele identice
   if (/^(\d)\1+$/.test(cifre)) return false
-  if (cifre === '1234567890' || cifre === '0123456789') return false
+  // Respinge secvențe simple
+  if (cifre.includes('1234567890') || cifre.includes('0123456789')) return false
+  // Respinge mai mult de 6 cifre identice consecutive
+  if (/(\d)\1{5,}/.test(cifre)) return false
+  // Trebuie cel puțin 4 cifre diferite
+  if (new Set(cifre.split('')).size < 4) return false
+  // Verificare prefix valid per țară
+  if (prefix && !prefix.test(cifre)) return false
   return true
 }
 
@@ -174,6 +202,7 @@ export default function PaginaRezervari() {
     setEroriForm({})
     setLoadingCod(true); setEroreCod('')
     try {
+      // 1. Generează și salvează codul în DB (MX check inclus)
       const res = await fetch('/api/trimite-cod', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -181,9 +210,22 @@ export default function PaginaRezervari() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.eroare)
+
+      // 2. Trimite email cu codul prin EmailJS (client-side)
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          email: form.email,
+          to_name: form.nume || form.email,
+          passcode: json.cod,
+        },
+        EMAILJS_PUBLIC_KEY
+      )
+
       setCodTrimis(true)
       setCodVerificare('')
-      setTimerCod(60) // 60 secunde până poate retrimite
+      setTimerCod(60)
     } catch (e: unknown) {
       setEroreCod(e instanceof Error ? e.message : 'Eroare la trimiterea codului.')
     } finally {
@@ -197,7 +239,7 @@ export default function PaginaRezervari() {
     if (!validareEmail(form.email)) {
       erori.email = 'Adresa de email nu este validă.'
     }
-    if (!validareTelefon(form.telefon, codTara.lungime)) {
+    if (!validareTelefon(form.telefon, codTara.lungime, codTara.prefix)) {
       erori.telefon = `Numărul trebuie să aibă ${codTara.lungime.join(' sau ')} cifre pentru ${codTara.tara}.`
     }
     if (Object.keys(erori).length > 0) {
@@ -247,15 +289,110 @@ export default function PaginaRezervari() {
     setCodTrimis(false); setCodVerificare(''); setEroreCod(''); setTimerCod(0)
   }
 
+  // Mesaj personalizat bazat pe tip rezervare + ora zilei
+  function getMesajPersonalizat() {
+    const ora = parseInt(oraSelectata.split(':')[0])
+    const ziua = new Date(dataSelectata).getDay() // 0=D, 6=S
+    const esteWeekendZi = ziua === 0 || ziua === 6
+
+    if (tipRezervare === 'eveniment') {
+      if (esteWeekendZi) {
+        return {
+          icon: '✨',
+          titlu: 'Un weekend de neuitat',
+          mesaj: 'Ai ales Vibe Caffè pentru un moment special — iar noi vom face tot posibilul să depășim orice așteptare. Echipa noastră va fi pregătită pentru tine.',
+        }
+      }
+      return {
+        icon: '🎉',
+        titlu: 'Evenimentul tău, grija noastră',
+        mesaj: 'Ai încredere în noi pentru acest moment important. Vom pregăti totul cu atenție și drag, ca seara ta să fie exact cum ai visat-o.',
+      }
+    }
+
+    // Masă normală
+    if (ora >= 7 && ora < 11) {
+      return {
+        icon: '🌅',
+        titlu: 'Dimineața începe frumos',
+        mesaj: 'Ai ales cel mai bun mod de a-ți începe ziua. Te așteptăm cu o cafea proaspăt preparată și aroma care îți va ridica moralul din primul sorb.',
+      }
+    }
+    if (ora >= 11 && ora < 14) {
+      return {
+        icon: '☀️',
+        titlu: 'O pauză bine meritată',
+        mesaj: 'Miezul zilei e mai dulce cu o cafea bună și o atmosferă caldă. Din sute de locuri ai ales să fii alături de noi — și asta înseamnă enorm.',
+      }
+    }
+    if (ora >= 14 && ora < 17) {
+      return {
+        icon: '☕',
+        titlu: 'Afternooni la Vibe',
+        mesaj: 'După-amiaza e momentul perfect pentru o cafea de specialty și o conversație frumoasă. Te așteptăm cu drag și cu cea mai bună cafea din Crawley.',
+      }
+    }
+    if (esteWeekendZi) {
+      return {
+        icon: '🌆',
+        titlu: 'Weekend perfect ales',
+        mesaj: 'Serile de weekend capătă altă culoare la Vibe Caffè. Relaxează-te, savurează și lasă-te purtat de atmosfera noastră unică.',
+      }
+    }
+    return {
+      icon: '🌙',
+      titlu: 'Seara e mai caldă la Vibe',
+      mesaj: 'Ai ales să închei ziua cu noi — și nu puteam fi mai fericiți. O cafea bună și un spațiu primitor te așteaptă după o zi lungă.',
+    }
+  }
+
   // Ecran succes
   if (succes) {
+    const { icon, titlu, mesaj } = getMesajPersonalizat()
     return (
       <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(160deg, #2c1a0e 0%, #3d2410 50%, #1c1008 100%)' }}>
-        <div className="w-full max-w-md text-center">
-          <div className="w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl" style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)', boxShadow: '0 0 60px rgba(245,158,11,0.5)' }}>✓</div>
-          <h2 className="text-3xl font-bold text-white mb-3">Rezervare confirmată!</h2>
-          <p className="text-amber-400 mb-1 text-lg"><strong>{formatDataRo(dataSelectata)}</strong> la <strong>{oraSelectata}</strong></p>
-          <p className="text-white/40 text-sm mb-8">Confirmare la {form.email}</p>
+        {/* Blur orbs fundal */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-20 blur-3xl pointer-events-none" style={{ background: '#fcd34d' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full opacity-15 blur-3xl pointer-events-none" style={{ background: '#f59e0b' }} />
+
+        <div className="relative w-full max-w-md text-center">
+          {/* Icon animat */}
+          <div className="w-28 h-28 rounded-full mx-auto mb-6 flex items-center justify-center text-5xl" style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)', boxShadow: '0 0 80px rgba(245,158,11,0.6)', animation: 'glowPulse 2s ease-in-out infinite' }}>
+            {icon}
+          </div>
+
+          <h2 className="text-4xl font-bold text-white mb-2">Ne vedem curând,</h2>
+          <h2 className="text-4xl font-bold mb-1" style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            {form.nume}!
+          </h2>
+          <p className="text-white/50 text-sm mb-5 font-medium tracking-wide uppercase">{titlu}</p>
+
+          {/* Card detalii */}
+          <div className="rounded-2xl p-5 mb-5 text-left" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(245,158,11,0.2)' }}>
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+              <span className="text-white/40 text-sm">Data</span>
+              <span className="text-amber-400 font-bold">{formatDataRo(dataSelectata)}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+              <span className="text-white/40 text-sm">Ora</span>
+              <span className="text-amber-400 font-bold">{oraSelectata}</span>
+            </div>
+            <div className="flex justify-between items-center py-2">
+              <span className="text-white/40 text-sm">Confirmare la</span>
+              <span className="text-white/60 text-sm">{form.email}</span>
+            </div>
+          </div>
+
+          {/* Mesaj emoțional */}
+          <div className="rounded-2xl p-5 mb-6" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)' }}>
+            <p className="text-white/70 text-sm leading-relaxed">
+              {mesaj}
+            </p>
+            <p className="text-amber-400/80 text-xs mt-3 font-medium">
+              — Echipa Vibe Caffè, Crawley
+            </p>
+          </div>
+
           <button onClick={rezervareNoua} className="w-full py-4 font-bold rounded-2xl text-black transition-all duration-300 hover:opacity-90 hover:scale-[1.02]" style={{ background: 'linear-gradient(135deg, #fcd34d, #f59e0b)' }}>
             Fă o rezervare nouă
           </button>
@@ -263,6 +400,13 @@ export default function PaginaRezervari() {
             ← Înapoi la pagina principală
           </a>
         </div>
+
+        <style>{`
+          @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 60px rgba(245,158,11,0.5); }
+            50%       { box-shadow: 0 0 100px rgba(245,158,11,0.8); }
+          }
+        `}</style>
       </div>
     )
   }
@@ -716,7 +860,7 @@ export default function PaginaRezervari() {
                         onFocus={(e) => { if (!eroriForm.telefon) { e.target.style.borderColor = '#f59e0b'; e.target.style.boxShadow = '0 0 0 3px rgba(245,158,11,0.15)' } }}
                         onBlur={(e) => {
                           // Validare la blur — trebuie exact numărul de cifre
-                          if (form.telefon && !validareTelefon(form.telefon, codTara.lungime)) {
+                          if (form.telefon && !validareTelefon(form.telefon, codTara.lungime, codTara.prefix)) {
                             const necesar = codTara.lungime.join(' sau ')
                             setEroriForm(prev => ({ ...prev, telefon: `Trebuie exact ${necesar} cifre pentru ${codTara.tara}.` }))
                             e.target.style.borderColor = '#ef4444'

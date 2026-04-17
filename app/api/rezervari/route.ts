@@ -101,13 +101,44 @@ function normalizeazaTelefon(telefon: string): string {
   return telefon.replace(/[\s\-().]/g, '')
 }
 
+// Prefixe locale valide per cod de țară (cifre după codul de țară)
+const PREFIXE_VALIDE: Array<{ cod: string; lungime: number[]; prefix: RegExp }> = [
+  { cod: '44',  lungime: [9,10],        prefix: /^(0?[1-9][0-9])/ },
+  { cod: '40',  lungime: [9],           prefix: /^(7[0-8]|[23][0-9])/ },
+  { cod: '373', lungime: [7,8],         prefix: /^[2-9]/ },
+  { cod: '1',   lungime: [10],          prefix: /^[2-9][0-9]{2}[2-9]/ },
+  { cod: '49',  lungime: [9,10,11],     prefix: /^(1[5-7][0-9]|[2-9][0-9])/ },
+  { cod: '33',  lungime: [9],           prefix: /^[1-9]/ },
+  { cod: '39',  lungime: [9,10],        prefix: /^(0[0-9]|3[0-9])/ },
+  { cod: '34',  lungime: [9],           prefix: /^[6-9]/ },
+  { cod: '31',  lungime: [9],           prefix: /^(0?6[0-9]|[1-9][0-9])/ },
+  { cod: '32',  lungime: [8,9],         prefix: /^(0?4[0-9]|[1-9][0-9])/ },
+  { cod: '48',  lungime: [9],           prefix: /^[4-8][0-9]/ },
+  { cod: '380', lungime: [9],           prefix: /^[3-9][0-9]/ },
+  { cod: '7',   lungime: [10],          prefix: /^[3-9][0-9]/ },
+  { cod: '90',  lungime: [10],          prefix: /^(5[0-9][0-9]|[2-4][0-9][0-9])/ },
+  { cod: '971', lungime: [7,8,9],       prefix: /^(5[024568]|[2-4][0-9])/ },
+]
+
 function validareTelefonServer(telefon: string): boolean {
   const t = normalizeazaTelefon(telefon)
   if (!/^\+\d{7,15}$/.test(t)) return false
   const cifre = t.slice(1) // fără +
-  // Respinge numere evident false
+  // Respinge toate cifrele identice
   if (/^(\d)\1+$/.test(cifre)) return false
-  if (cifre.endsWith('1234567890') || cifre.endsWith('0123456789')) return false
+  // Respinge secvențe simple
+  if (cifre.includes('1234567890') || cifre.includes('0123456789')) return false
+  // Respinge mai mult de 6 cifre identice consecutive
+  if (/(\d)\1{5,}/.test(cifre)) return false
+  // Trebuie cel puțin 4 cifre diferite
+  if (new Set(cifre.split('')).size < 4) return false
+  // Verificare lungime + prefix local per țară
+  const tara = PREFIXE_VALIDE.find(p => cifre.startsWith(p.cod))
+  if (tara) {
+    const local = cifre.slice(tara.cod.length)
+    if (!tara.lungime.includes(local.length)) return false
+    if (!tara.prefix.test(local)) return false
+  }
   return true
 }
 
